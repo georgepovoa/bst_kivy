@@ -26,10 +26,8 @@ c_fin = dbcon_fin.cursor()
 
 
 class TutorialApp(App):
-    def build(self):
-        def pytest_sessionfinish(session, exitstatus):
-            if exitstatus == 5:
-                session.exitstatus = 10 # Any arbitrary custom status you want to return```
+    def test_placeholder():
+        pass
         # # ## ## ## ## ## ## ## ## ESTRUTURA DE MUDANÇA DE PAGINA # ## ## ## ## ## ## ## ## ##
         def orcamento(instance):
             try:
