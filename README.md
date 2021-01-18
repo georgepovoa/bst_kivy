@@ -4,4 +4,4 @@
 
 # Objetivo, criar um protótipo de sistema para uma empresa a empresa BST Toldos
 
-![alt text](https://github.com/georgepovoa/bst_kivy/img/Screenshotfrom2021-01-0815-52-38.png?raw=true)
+![alt text](https://github.com/georgepovoa/bst_kivy/blob/main/img/Screenshot%20from%202021-01-08%2015-52-38.png)
