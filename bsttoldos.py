@@ -23,7 +23,8 @@ c_estoque = dbcon_estoque.cursor()
 c_cliente = dbcon_cliente.cursor()
 c_func = dbcon_func.cursor()
 c_fin = dbcon_fin.cursor()
-
+def test_placeholder():
+    pass
 
 class TutorialApp(App):
     def build(self):
