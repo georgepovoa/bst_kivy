@@ -26,8 +26,6 @@ c_fin = dbcon_fin.cursor()
 
 
 class TutorialApp(App):
-    def test_placeholder():
-        pass
         # # ## ## ## ## ## ## ## ## ESTRUTURA DE MUDANÇA DE PAGINA # ## ## ## ## ## ## ## ## ##
         def orcamento(instance):
             try:
@@ -860,3 +858,6 @@ class TutorialApp(App):
 if __name__ == "__main__":
     Window.size = (1200, 500)
     TutorialApp().run()
+def pytest_sessionfinish(session, exitstatus):
+    if exitstatus == 5:
+        session.exitstatus = 10 # Any arbitrary custom status you want to return```
