@@ -1,3 +1,5 @@
+
+  
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -6,6 +8,10 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.popup import Popup
 import sqlite3
+from kivy.core.window import Window
+import pandas as pd
+import sys
+import os
 
 
 
@@ -15,39 +21,59 @@ conn = sqlite3.connect("bst_db.db")
 cursor = conn.cursor()
 
 
+
 try:
     conn.execute("""CREATE TABLE contas(
-
 id_contas INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 nome_titular TEXT NOT NULL,
 num_conta TEXT NOT NULL,
 tipo_conta TEXT NOT NULL,
-agencia TEXT NOT NULL
+agencia TEXT NOT NULL,
+saldo TEXT NOT NULL
 )
-
 """)
 except Exception as e:
     print(e)
+
+    
+
+try:
+    conn.execute("""CREATE TABLE fluxo(
+id_fluxo INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+num_conta TEXT NOT NULL,
+tipo_conta TEXT NOT NULL,
+valor REAL NOT NULL,
+data TEXT NOT NULL,
+categoria TEXT NOT NULL,
+descricao TEXT NOT NULL,
+observacao TEXT ,
+contato TEXT,
+forma_de_pagamento TEXT
+)
+""")
+except Exception as e:
+    print(e)
+
+    
 
 
 try:
     conn.execute("""CREATE TABLE categorias(
-
 id_categorias INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 nome_categoria TEXT NOT NULL
 )
-
 """)
 except Exception as e:
     print(e)
 
+
+    
+
 try:
     conn.execute("""CREATE TABLE formas_pagamento(
-
 id_formas_pagamento INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 nome_forma_pagamento TEXT NOT NULL
 )
-
 """)
 except Exception as e:
     print(e)
@@ -57,10 +83,13 @@ except Exception as e:
 def adicionar_conta_db(nome_titular,num_conta,tipo_conta,agencia):
     try:
         list_db = [nome_titular,num_conta,tipo_conta,agencia]
-        conn.execute("INSERT INTO contas(nome_titular,num_conta,tipo_conta,agencia) VALUES(?,?,?,?)",list_db)
+        conn.execute("INSERT INTO contas(nome_titular,num_conta,tipo_conta,agencia,saldo) VALUES(?,?,?,?,0)",list_db)
         print(list_db," inserido no bd")
     except Exception as e:
         print(e)
+
+
+        
 
 def adicionar_categoria_db(nome_cadastro):
     try:
@@ -69,6 +98,8 @@ def adicionar_categoria_db(nome_cadastro):
         print(list_db," inserido no bd cadastro")
     except Exception as e:
         print(e)
+
+        
 
 def adicionar_forma_pagamento_db(nome_forma_pagamento):
     try:
@@ -79,14 +110,33 @@ def adicionar_forma_pagamento_db(nome_forma_pagamento):
         print(e)
 
 
+        
+
+def adicionar_fluxo_db(num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento):
+    try:
+        list_db = [num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento]
+        conn.execute("INSERT INTO fluxo(num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento) VALUES(?,?,?,?,?,?,?,?,?)",list_db)
+        print(list_db," inserido no db")
+    except Exception as e:
+        print(e)
+
 
 
 class ModernApp(App):
     def build(self):
         def selecionar_conta(instance):
             def escolha_conta(text):
-                conta.text = text
+                while "'" in text :
+                    text = text.replace("'",'')
+                text = text.split(",")
+                
+                print(text)
+                
+                
+                
+                conta.text = "{}\n{}\n{}".format(text[1],text[3],text[2])
                 selecionar_conta_view_popup.dismiss()
+                
             selecionar_conta_view = GridLayout(cols=3)
 
             cursor.execute("SELECT * FROM contas")
@@ -102,7 +152,12 @@ class ModernApp(App):
 
         def selecionar_categoria(instance):
             def escolha_categoria(text):
-                categoria.text = text
+                while "'" in text:
+                    text = text.replace("'",'')
+                text = text.replace("(",'')
+                text = text.replace(")",'')
+                text = text.split(',')
+                categoria.text = text[1]
                 selecionar_categoria_view_popup.dismiss()
 
             selecionar_categoria_view = GridLayout(cols=2)
@@ -120,7 +175,11 @@ class ModernApp(App):
 
         def selecionar_forma_pagamento(instance):
             def escolha_forma_pagamento(text):
-                forma_de_pagamento.text = text
+                while "'" in text :
+                    text = text.replace("'",'')
+                text = text.replace(')','')
+                text = text.split(',')
+                forma_de_pagamento.text = text[1]
                 selecionar_forma_pagamento_view_popup.dismiss()
 
             selecionar_forma_pagamento_view = GridLayout(cols=2)
@@ -143,7 +202,19 @@ class ModernApp(App):
 
 
 
+        def arquivos_view(instance):
+            try:
+                df = pd.read_sql_query("SELECT * from fluxo", conn)
 
+                df.to_excel(r'fluxo.xlsx', index=False)
+
+                if sys.platform == "win32":
+                    os.startfile('fluxo.xlsx')
+                else:
+                    opener = "open" if sys.platform == "darwin" else "xdg-open"
+                    subprocess.call([opener, 'materia_prima.xlsx'])
+            except Exception as e:
+                print(e)
         def cadastro_view(instance):
             def cadastrar_contas_view(instance):
                 def enviar_cadastro_conta_btt_func(instance):
@@ -201,7 +272,7 @@ class ModernApp(App):
 
             parte_conteudo.clear_widgets()
 
-            cadastro_layout_tela_1 = GridLayout(cols=3)
+            cadastro_layout_tela_1 = GridLayout(rows=3,spacing = 25)
             cadastrar_conta_btt = Button(text = "cadastrar Contas")
             cadastrar_conta_btt.bind(on_press = cadastrar_contas_view)
 
@@ -236,7 +307,7 @@ class ModernApp(App):
             # forma de pagamento
             # observações
 
-            lista_de_campos = ["valor", 'data', 'vencimento', 'repeticao', 'descricao', 'contato', 'observacoes']
+            lista_de_campos = ["valor", 'data', 'repeticao', 'descricao', 'contato', 'observacoes']
             # adicionar dinamicamente label e input 
             for i in lista_de_campos:
                 financeiro_view.add_widget(Label(text=str(i)))
@@ -261,7 +332,7 @@ class ModernApp(App):
             forma_de_pagamento.bind(on_release = selecionar_forma_pagamento)
             financeiro_view.add_widget(forma_de_pagamento)
 
-            btt_teste = Button(text="btt test")
+            btt_teste = Button(text="Enviar para financeiro")
             btt_teste.bind(on_release=btt_test_func)
             financeiro_view.add_widget(btt_teste)
 
@@ -271,45 +342,46 @@ class ModernApp(App):
             def adicionar_receita(instance):
                 valor_value = valor.text
                 data_value = data.text
-                vencimento_value = vencimento.text
                 repeticao_value = repeticao.text
                 descricao_value = descricao.text
                 contato_value = contato.text
                 observacoes_value = observacoes.text
-                db_list = [valor_value, data_value, vencimento_value, repeticao_value, descricao_value, contato_value,conta.text,categoria.text,forma_de_pagamento.text]
+                db_list = [valor_value, data_value, repeticao_value, descricao_value, contato_value,conta.text.split('\n')[1],categoria.text,forma_de_pagamento.text]
 
                 print("RECEITA")
-                print(db_list)
+                
+                
+                
+                adicionar_fluxo_db(conta.text.split('\n')[2].strip(),conta.text.split('\n')[1].strip(),valor_value,data_value,categoria.text,descricao.text,observacoes_value,contato.text,forma_de_pagamento.text)
+
+                
 
             def adicionar_despesa(intance):
                 valor_value = valor.text
                 data_value = data.text
-                vencimento_value = vencimento.text
                 repeticao_value = repeticao.text
                 descricao_value = descricao.text
                 contato_value = contato.text
                 observacoes_value = observacoes.text
-                if vencimento.text != '':
 
-                    try:
-                        db_list = [float(valor_value) * -1, data_value, vencimento_value, repeticao_value,
+                try:
+                    db_list = [float(valor_value) * -1, data_value, repeticao_value,
                                    descricao_value, contato_value,conta.text,categoria.text,forma_de_pagamento.text]
 
-                        print("DESPESA")
-                        print(db_list)
-                    except Exception as e:
-                        print(e)
-                else:
-                    print('Valores necessários estão vazios')
+                    print("DESPESA")
+                    print(db_list)
+                except Exception as e:
+                    print(e)
+                
 
             valor_value = valor.text
             data_value = data.text
-            vencimento_value = vencimento.text
+            
             repeticao_value = repeticao.text
             descricao_value = descricao.text
             contato_value = contato.text
             observacoes_value = observacoes.text
-            db_list = [valor_value, data_value, vencimento_value, repeticao_value, descricao_value, contato_value]
+            db_list = [valor_value, data_value, repeticao_value, descricao_value, contato_value]
             tela_escolha = GridLayout(cols=2)
 
             tela_escolha_receita_btt = Button(text="receita")
@@ -322,7 +394,7 @@ class ModernApp(App):
             tela_escolher_popup = Popup(title="ENTRADA / SAIDA", content=tela_escolha)
             tela_escolher_popup.open()
 
-        layout = GridLayout(cols=2)
+        layout = GridLayout(cols=2,spacing=50)
         parte_conteudo = GridLayout(cols=1)
 
         menu = GridLayout(rows=4)
@@ -341,7 +413,9 @@ class ModernApp(App):
         menu.add_widget(cadastros_btt)
 
         menu.add_widget(Button(text="Resumo "))
-        menu.add_widget(Button(text="Arquivos "))
+        arquivos_btt = Button(text="Arquivos ")
+        arquivos_btt.bind(on_release = arquivos_view)
+        menu.add_widget(arquivos_btt)
 
         layout.add_widget(menu)
         layout.add_widget(parte_conteudo)
@@ -352,6 +426,10 @@ class ModernApp(App):
 
 
 if __name__ == '__main__':
+    Window.maximize()
     ModernApp().run()
+
+    
 conn.commit()
 conn.close()
+
