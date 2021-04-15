@@ -1,5 +1,4 @@
 
-  
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -12,6 +11,7 @@ from kivy.core.window import Window
 import pandas as pd
 import sys
 import os
+import subprocess
 
 
 
@@ -35,7 +35,7 @@ saldo TEXT NOT NULL
 except Exception as e:
     print(e)
 
-    
+
 
 try:
     conn.execute("""CREATE TABLE fluxo(
@@ -54,7 +54,7 @@ forma_de_pagamento TEXT
 except Exception as e:
     print(e)
 
-    
+
 
 
 try:
@@ -67,7 +67,7 @@ except Exception as e:
     print(e)
 
 
-    
+
 
 try:
     conn.execute("""CREATE TABLE formas_pagamento(
@@ -89,7 +89,7 @@ def adicionar_conta_db(nome_titular,num_conta,tipo_conta,agencia):
         print(e)
 
 
-        
+
 
 def adicionar_categoria_db(nome_cadastro):
     try:
@@ -99,7 +99,7 @@ def adicionar_categoria_db(nome_cadastro):
     except Exception as e:
         print(e)
 
-        
+
 
 def adicionar_forma_pagamento_db(nome_forma_pagamento):
     try:
@@ -110,7 +110,7 @@ def adicionar_forma_pagamento_db(nome_forma_pagamento):
         print(e)
 
 
-        
+
 
 def adicionar_fluxo_db(num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento):
     try:
@@ -129,14 +129,14 @@ class ModernApp(App):
                 while "'" in text :
                     text = text.replace("'",'')
                 text = text.split(",")
-                
+
                 print(text)
-                
-                
-                
+
+
+
                 conta.text = "{}\n{}\n{}".format(text[1],text[3],text[2])
                 selecionar_conta_view_popup.dismiss()
-                
+
             selecionar_conta_view = GridLayout(cols=3)
 
             cursor.execute("SELECT * FROM contas")
@@ -212,7 +212,7 @@ class ModernApp(App):
                     os.startfile('fluxo.xlsx')
                 else:
                     opener = "open" if sys.platform == "darwin" else "xdg-open"
-                    subprocess.call([opener, 'materia_prima.xlsx'])
+                    subprocess.call([opener, 'fluxo.xlsx'])
             except Exception as e:
                 print(e)
         def cadastro_view(instance):
@@ -229,7 +229,7 @@ class ModernApp(App):
                 lista_de_campos = ['nome_titular','num_conta','tipo_conta','agencia']
                 for i in lista_de_campos:
                     cadastro_layout_tela_2.add_widget(Label(text=str(i)))
-                    globals()[str(i)] = TextInput(multiline=False)
+                    globals()[str(i)] = TextInput(multiline=False, write_tab=False)
                     cadastro_layout_tela_2.add_widget(globals()[str(i)])
                 enviar_cadastro_conta_btt = Button(text="Enviar")
                 enviar_cadastro_conta_btt.bind(on_release = enviar_cadastro_conta_btt_func)
@@ -244,7 +244,7 @@ class ModernApp(App):
                 parte_conteudo.clear_widgets()
                 cadastrar_categorias_layout = GridLayout(cols =2)
                 cadastrar_categorias_layout.add_widget(Label(text = "Nome :"))
-                categoria_nome_cadastro = TextInput(multiline=False)
+                categoria_nome_cadastro = TextInput(multiline=False, write_tab=False)
                 cadastrar_categorias_layout.add_widget(categoria_nome_cadastro)
                 categoria_nome_cadastro_btt = Button(text = "Enviar")
                 categoria_nome_cadastro_btt.bind(on_release = enviar_cadastro_categoria)
@@ -259,7 +259,7 @@ class ModernApp(App):
                 parte_conteudo.clear_widgets()
                 cadastrar_forma_pagamento_layout = GridLayout(cols=2)
                 cadastrar_forma_pagamento_layout.add_widget(Label(text="Nome :"))
-                forma_pagamento_nome_cadastro = TextInput(multiline=False)
+                forma_pagamento_nome_cadastro = TextInput(multiline=False, write_tab=False)
                 cadastrar_forma_pagamento_layout.add_widget(forma_pagamento_nome_cadastro)
                 forma_pagamento_nome_cadastro_btt = Button(text="Enviar")
                 forma_pagamento_nome_cadastro_btt.bind(on_release=enviar_cadastro_forma_pagamento)
@@ -296,9 +296,9 @@ class ModernApp(App):
             parte_conteudo.clear_widgets()
             financeiro_view = GridLayout(cols=2)
 
-            # valor 
+            # valor
             # data
-            # vencimento 
+            # vencimento
             # repeticao
             # descrição
             # conta
@@ -308,10 +308,10 @@ class ModernApp(App):
             # observações
 
             lista_de_campos = ["valor", 'data', 'repeticao', 'descricao', 'contato', 'observacoes']
-            # adicionar dinamicamente label e input 
+            # adicionar dinamicamente label e input
             for i in lista_de_campos:
                 financeiro_view.add_widget(Label(text=str(i)))
-                globals()[str(i)] = TextInput(multiline=False)
+                globals()[str(i)] = TextInput(multiline=False, write_tab=False)
                 financeiro_view.add_widget(globals()[str(i)])
 
             financeiro_view.add_widget(Label(text="Conta"))
@@ -335,6 +335,7 @@ class ModernApp(App):
             btt_teste = Button(text="Enviar para financeiro")
             btt_teste.bind(on_release=btt_test_func)
             financeiro_view.add_widget(btt_teste)
+            valor.input_filter='float'
 
             parte_conteudo.add_widget(financeiro_view)
 
@@ -349,12 +350,12 @@ class ModernApp(App):
                 db_list = [valor_value, data_value, repeticao_value, descricao_value, contato_value,conta.text.split('\n')[1],categoria.text,forma_de_pagamento.text]
 
                 print("RECEITA")
-                
-                
-                
+
+
+
                 adicionar_fluxo_db(conta.text.split('\n')[2].strip(),conta.text.split('\n')[1].strip(),valor_value,data_value,categoria.text,descricao.text,observacoes_value,contato.text,forma_de_pagamento.text)
 
-                
+
 
             def adicionar_despesa(intance):
                 valor_value = valor.text
@@ -372,11 +373,11 @@ class ModernApp(App):
                     print(db_list)
                 except Exception as e:
                     print(e)
-                
+
 
             valor_value = valor.text
             data_value = data.text
-            
+
             repeticao_value = repeticao.text
             descricao_value = descricao.text
             contato_value = contato.text
@@ -420,7 +421,7 @@ class ModernApp(App):
         layout.add_widget(menu)
         layout.add_widget(parte_conteudo)
 
-        # adicionar dinamicamente label e input 
+        # adicionar dinamicamente label e input
 
         return layout
 
@@ -429,7 +430,6 @@ if __name__ == '__main__':
     Window.maximize()
     ModernApp().run()
 
-    
+
 conn.commit()
 conn.close()
-
