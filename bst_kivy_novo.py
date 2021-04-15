@@ -1,24 +1,32 @@
 
+import os
+import sqlite3
+import subprocess
+import sys
+from datetime import date
+from datetime import timedelta
+
+import pandas as pd
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.popup import Popup
-import sqlite3
-from kivy.core.window import Window
-import pandas as pd
-import sys
-import os
-import subprocess
-
-
-
-from kivy.uix.popup import Popup
 
 conn = sqlite3.connect("bst_db.db")
 cursor = conn.cursor()
+
+hoje = date.today()
+ano_hoje = str(hoje).split("-")[0]
+mes_hoje = str(hoje).split("-")[1]
+dia_hoje = str(hoje).split("-")[2]
+print("hoje's date:", hoje)
+
+futuro_range = hoje + pd.Timedelta("7 day")
+print(futuro_range)
 
 
 
@@ -40,6 +48,7 @@ except Exception as e:
 try:
     conn.execute("""CREATE TABLE fluxo(
 id_fluxo INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+id_conta TEXT NOT NULL,
 num_conta TEXT NOT NULL,
 tipo_conta TEXT NOT NULL,
 valor REAL NOT NULL,
@@ -48,7 +57,9 @@ categoria TEXT NOT NULL,
 descricao TEXT NOT NULL,
 observacao TEXT ,
 contato TEXT,
-forma_de_pagamento TEXT
+forma_de_pagamento TEXT,
+saldo_da_conta REAL
+
 )
 """)
 except Exception as e:
@@ -73,6 +84,24 @@ try:
     conn.execute("""CREATE TABLE formas_pagamento(
 id_formas_pagamento INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 nome_forma_pagamento TEXT NOT NULL
+)
+""")
+except Exception as e:
+    print(e)
+
+try:
+    conn.execute("""CREATE TABLE futuro(
+id_fluxo INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+id_conta TEXT NOT NULL,
+num_conta TEXT NOT NULL,
+tipo_conta TEXT NOT NULL,
+valor REAL NOT NULL,
+data TEXT NOT NULL,
+categoria TEXT NOT NULL,
+descricao TEXT NOT NULL,
+observacao TEXT ,
+contato TEXT,
+forma_de_pagamento TEXT
 )
 """)
 except Exception as e:
@@ -112,10 +141,19 @@ def adicionar_forma_pagamento_db(nome_forma_pagamento):
 
 
 
-def adicionar_fluxo_db(num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento):
+def adicionar_fluxo_db(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta):
     try:
-        list_db = [num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento]
-        conn.execute("INSERT INTO fluxo(num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento) VALUES(?,?,?,?,?,?,?,?,?)",list_db)
+        list_db = [id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta]
+        conn.execute("INSERT INTO fluxo(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta) VALUES(?,?,?,?,?,?,?,?,?,?,?)",list_db)
+        print(list_db," inserido no db")
+    except Exception as e:
+        print(e)
+
+
+def adicionar_futuro_db(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento):
+    try:
+        list_db = [id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento]
+        conn.execute("INSERT INTO futuro(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento) VALUES(?,?,?,?,?,?,?,?,?,?)",list_db)
         print(list_db," inserido no db")
     except Exception as e:
         print(e)
@@ -128,13 +166,14 @@ class ModernApp(App):
             def escolha_conta(text):
                 while "'" in text :
                     text = text.replace("'",'')
+                text = text.replace("(",'')
                 text = text.split(",")
 
                 print(text)
 
 
 
-                conta.text = "{}\n{}\n{}".format(text[1],text[3],text[2])
+                conta.text = "{}\n{}\n{}\n{}".format(text[0],text[1],text[3],text[2])
                 selecionar_conta_view_popup.dismiss()
 
             selecionar_conta_view = GridLayout(cols=3)
@@ -208,11 +247,18 @@ class ModernApp(App):
 
                 df.to_excel(r'fluxo.xlsx', index=False)
 
-                if sys.platform == "win32":
-                    os.startfile('fluxo.xlsx')
-                else:
-                    opener = "open" if sys.platform == "darwin" else "xdg-open"
-                    subprocess.call([opener, 'fluxo.xlsx'])
+                df_futuro = pd.read_sql_query("SELECT * from futuro", conn)
+                df_futuro.to_excel(r'futuro.xlsx', index=False)
+
+                df_contas = pd.read_sql_query("SELECT * from contas", conn)
+                df_contas.to_excel(r'contas.xlsx', index=False)
+
+
+                #if sys.platform == "win32":
+                #    os.startfile('fluxo.xlsx')
+                #else:
+                #    opener = "open" if sys.platform == "darwin" else "xdg-open"
+                #    subprocess.call([opener, 'fluxo.xlsx'])
             except Exception as e:
                 print(e)
         def cadastro_view(instance):
@@ -307,12 +353,26 @@ class ModernApp(App):
             # forma de pagamento
             # observações
 
-            lista_de_campos = ["valor", 'data', 'repeticao', 'descricao', 'contato', 'observacoes']
+            lista_de_campos = ["valor", 'repeticao', 'descricao', 'contato', 'observacoes']
             # adicionar dinamicamente label e input
             for i in lista_de_campos:
                 financeiro_view.add_widget(Label(text=str(i)))
                 globals()[str(i)] = TextInput(multiline=False, write_tab=False)
                 financeiro_view.add_widget(globals()[str(i)])
+            
+            financeiro_view.add_widget(Label(text="data"))
+            data_campo_input = GridLayout(cols=3)
+            global ano,mes,dia
+            ano = TextInput(text = str(ano_hoje),multiline=False, write_tab=False)
+            mes = TextInput(text = str(mes_hoje),multiline=False, write_tab=False)
+            dia = TextInput(text = str(dia_hoje),multiline=False, write_tab=False)
+            data_campo_input.add_widget(dia)
+            data_campo_input.add_widget(mes)
+            data_campo_input.add_widget(ano)
+
+            
+
+            financeiro_view.add_widget(data_campo_input)
 
             financeiro_view.add_widget(Label(text="Conta"))
             global conta
@@ -342,47 +402,92 @@ class ModernApp(App):
         def btt_test_func(instance):
             def adicionar_receita(instance):
                 valor_value = valor.text
-                data_value = data.text
                 repeticao_value = repeticao.text
                 descricao_value = descricao.text
                 contato_value = contato.text
                 observacoes_value = observacoes.text
-                db_list = [valor_value, data_value, repeticao_value, descricao_value, contato_value,conta.text.split('\n')[1],categoria.text,forma_de_pagamento.text]
-
                 print("RECEITA")
+                id_conta = conta.text.split('\n')[0].strip()
+                num_conta = conta.text.split('\n')[3].strip()
+                tipo_conta =conta.text.split('\n')[2].strip()
+
+                data_value = "{}-{}-{}".format(ano.text,mes.text,dia.text)
+
+                if pd.Timestamp(data_value) > pd.Timestamp(str(hoje)):
+                    print("VAI PARA FUTURO")
+                    adicionar_futuro_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
 
 
 
-                adicionar_fluxo_db(conta.text.split('\n')[2].strip(),conta.text.split('\n')[1].strip(),valor_value,data_value,categoria.text,descricao.text,observacoes_value,contato.text,forma_de_pagamento.text)
+                else:
+                    print("VAI PARA FLUXO")
+                
+                
+
+                    cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta))
+                    conta_atual = cursor.fetchone()
+                    print(conta_atual)
+                    saldo_atual = conta_atual[5]
+                    saldo_novo = [float(saldo_atual) + float(valor_value)]
+                    update_saldo = [saldo_novo[0],id_conta]
+
+
+                    conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
+                
+
+                    print(tipo_conta)
+                    adicionar_fluxo_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip(),float(saldo_novo[0]))
 
 
 
             def adicionar_despesa(intance):
-                valor_value = valor.text
-                data_value = data.text
+                valor_value = float(valor.text)*-1
                 repeticao_value = repeticao.text
                 descricao_value = descricao.text
                 contato_value = contato.text
                 observacoes_value = observacoes.text
+                print("DESPESA")
+                id_conta = conta.text.split('\n')[0].strip()
+                num_conta = conta.text.split('\n')[3].strip()
+                tipo_conta =conta.text.split('\n')[2].strip()
 
-                try:
-                    db_list = [float(valor_value) * -1, data_value, repeticao_value,
-                                   descricao_value, contato_value,conta.text,categoria.text,forma_de_pagamento.text]
+                data_value = "{}-{}-{}".format(ano.text,mes.text,dia.text)
 
-                    print("DESPESA")
-                    print(db_list)
-                except Exception as e:
-                    print(e)
+                if pd.Timestamp(data_value) > pd.Timestamp(str(hoje)):
+                    print("VAI PARA FUTURO")
+                    adicionar_futuro_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+
+
+
+                else:
+                    print("VAI PARA FLUXO")
+                
+                
+
+                    cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta))
+                    conta_atual = cursor.fetchone()
+                    print(conta_atual)
+                    saldo_atual = conta_atual[5]
+                    saldo_novo = [float(saldo_atual) + float(valor_value)]
+                    update_saldo = [saldo_novo[0],id_conta]
+
+
+
+                    conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
+                
+
+                    print(tipo_conta)
+                    adicionar_fluxo_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip(),float(saldo_novo[0]))
+
 
 
             valor_value = valor.text
-            data_value = data.text
 
             repeticao_value = repeticao.text
             descricao_value = descricao.text
             contato_value = contato.text
             observacoes_value = observacoes.text
-            db_list = [valor_value, data_value, repeticao_value, descricao_value, contato_value]
+            
             tela_escolha = GridLayout(cols=2)
 
             tela_escolha_receita_btt = Button(text="receita")
