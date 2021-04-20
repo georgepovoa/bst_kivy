@@ -1,540 +1,817 @@
-
-import os
-import sqlite3
-import subprocess
-import sys
-from datetime import date
-from datetime import timedelta
-
-import pandas as pd
-from kivy.app import App
-from kivy.core.window import Window
-from kivy.uix.button import Button
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.uix.textinput import TextInput
-from kivy.uix.togglebutton import ToggleButton
-
-conn = sqlite3.connect("bst_db.db")
-cursor = conn.cursor()
-
-hoje = date.today()
-ano_hoje = str(hoje).split("-")[0]
-mes_hoje = str(hoje).split("-")[1]
-dia_hoje = str(hoje).split("-")[2]
-print("hoje's date:", hoje)
-
-futuro_range = hoje + pd.Timedelta("7 day")
-print(futuro_range)
-
-
-
 try:
-    conn.execute("""CREATE TABLE contas(
-id_contas INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-nome_titular TEXT NOT NULL,
-num_conta TEXT NOT NULL,
-tipo_conta TEXT NOT NULL,
-agencia TEXT NOT NULL,
-saldo TEXT NOT NULL
-)
-""")
-except Exception as e:
-    print(e)
+    import os
+    import sqlite3
+    import subprocess
+    import sys
+    from datetime import date
+    from datetime import timedelta
+
+    import pandas as pd
+    from kivy.app import App
+    from kivy.core.window import Window
+    from kivy.uix.button import Button
+    from kivy.uix.gridlayout import GridLayout
+    from kivy.uix.label import Label
+    from kivy.uix.popup import Popup
+    from kivy.uix.textinput import TextInput
+    from kivy.uix.togglebutton import ToggleButton
+    from kivy.uix.scrollview import ScrollView
+
+    
+
+    conn = sqlite3.connect("bst_db.db")
+    cursor = conn.cursor()
+
+    hoje = date.today()
+    ano_hoje = str(hoje).split("-")[0]
+    mes_hoje = str(hoje).split("-")[1]
+    dia_hoje = str(hoje).split("-")[2]
+    print("hoje's date:", hoje)
+
+    futuro_range = hoje + pd.Timedelta("7 day")
+    print(futuro_range)
 
 
 
-try:
-    conn.execute("""CREATE TABLE fluxo(
-id_fluxo INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-id_conta TEXT NOT NULL,
-num_conta TEXT NOT NULL,
-tipo_conta TEXT NOT NULL,
-valor REAL NOT NULL,
-data TEXT NOT NULL,
-categoria TEXT NOT NULL,
-descricao TEXT NOT NULL,
-observacao TEXT ,
-contato TEXT,
-forma_de_pagamento TEXT,
-saldo_da_conta REAL
-
-)
-""")
-except Exception as e:
-    print(e)
-
-
-
-
-try:
-    conn.execute("""CREATE TABLE categorias(
-id_categorias INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-nome_categoria TEXT NOT NULL
-)
-""")
-except Exception as e:
-    print(e)
-
-
-
-
-try:
-    conn.execute("""CREATE TABLE formas_pagamento(
-id_formas_pagamento INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-nome_forma_pagamento TEXT NOT NULL
-)
-""")
-except Exception as e:
-    print(e)
-
-try:
-    conn.execute("""CREATE TABLE futuro(
-id_fluxo INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-id_conta TEXT NOT NULL,
-num_conta TEXT NOT NULL,
-tipo_conta TEXT NOT NULL,
-valor REAL NOT NULL,
-data TEXT NOT NULL,
-categoria TEXT NOT NULL,
-descricao TEXT NOT NULL,
-observacao TEXT ,
-contato TEXT,
-forma_de_pagamento TEXT
-)
-""")
-except Exception as e:
-    print(e)
-
-
-
-def adicionar_conta_db(nome_titular,num_conta,tipo_conta,agencia):
     try:
-        list_db = [nome_titular,num_conta,tipo_conta,agencia]
-        conn.execute("INSERT INTO contas(nome_titular,num_conta,tipo_conta,agencia,saldo) VALUES(?,?,?,?,0)",list_db)
-        print(list_db," inserido no bd")
+        conn.execute("""CREATE TABLE contas(
+    id_contas INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nome_titular TEXT NOT NULL,
+    num_conta TEXT NOT NULL,
+    tipo_conta TEXT NOT NULL,
+    agencia TEXT NOT NULL,
+    banco TEXT NOT NULL,
+    saldo TEXT NOT NULL
+    )
+    """)
+    except Exception as e:
+        print(e)
+
+
+
+    try:
+        conn.execute("""CREATE TABLE fluxo(
+    id_fluxo INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    id_conta TEXT NOT NULL,
+    num_conta TEXT NOT NULL,
+    banco TEXT NOT NULL,
+    tipo_conta TEXT NOT NULL,
+    valor REAL NOT NULL,
+    data TEXT NOT NULL,
+    categoria TEXT NOT NULL,
+    descricao TEXT NOT NULL,
+    observacao TEXT ,
+    contato TEXT,
+    forma_de_pagamento TEXT,
+    saldo_da_conta REAL
+
+    )
+    """)
     except Exception as e:
         print(e)
 
 
 
 
-def adicionar_categoria_db(nome_cadastro):
     try:
-        list_db = [nome_cadastro]
-        conn.execute("INSERT INTO categorias(nome_categoria) VALUES(?)",list_db)
-        print(list_db," inserido no bd cadastro")
-    except Exception as e:
-        print(e)
-
-
-
-def adicionar_forma_pagamento_db(nome_forma_pagamento):
-    try:
-        list_db = [nome_forma_pagamento]
-        conn.execute("INSERT INTO formas_pagamento(nome_forma_pagamento) VALUES(?)",list_db)
-        print(list_db," inserido no bd formas_pagamento")
+        conn.execute("""CREATE TABLE categorias(
+    id_categorias INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nome_categoria TEXT NOT NULL
+    )
+    """)
     except Exception as e:
         print(e)
 
 
 
 
-def adicionar_fluxo_db(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta):
     try:
-        list_db = [id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta]
-        conn.execute("INSERT INTO fluxo(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta) VALUES(?,?,?,?,?,?,?,?,?,?,?)",list_db)
-        print(list_db," inserido no db")
+        conn.execute("""CREATE TABLE formas_pagamento(
+    id_formas_pagamento INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    nome_forma_pagamento TEXT NOT NULL
+    )
+    """)
+    except Exception as e:
+        print(e)
+
+    try:
+        conn.execute("""CREATE TABLE futuro(
+    id_futuro INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    id_conta TEXT NOT NULL,
+    num_conta TEXT NOT NULL,
+    banco NOT NULL,
+    tipo_conta TEXT NOT NULL,
+    valor REAL NOT NULL,
+    data TEXT NOT NULL,
+    categoria TEXT NOT NULL,
+    descricao TEXT NOT NULL,
+    observacao TEXT ,
+    contato TEXT,
+    forma_de_pagamento TEXT
+    )
+    """)
     except Exception as e:
         print(e)
 
 
-def adicionar_futuro_db(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento):
-    try:
-        list_db = [id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento]
-        conn.execute("INSERT INTO futuro(id_conta,num_conta,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento) VALUES(?,?,?,?,?,?,?,?,?,?)",list_db)
-        print(list_db," inserido no db")
-    except Exception as e:
-        print(e)
 
-
-
-class ModernApp(App):
-    def build(self):
-        def selecionar_conta(instance):
-            def escolha_conta(text):
-                while "'" in text :
-                    text = text.replace("'",'')
-                text = text.replace("(",'')
-                text = text.split(",")
-
-                print(text)
-
-
-
-                conta.text = "{}\n{}\n{}\n{}".format(text[0],text[1],text[3],text[2])
-                selecionar_conta_view_popup.dismiss()
-
-            selecionar_conta_view = GridLayout(cols=3)
-
-            cursor.execute("SELECT * FROM contas")
-            result_contas = cursor.fetchall()
-
-            for i in result_contas:
-                btn = Button(text = str(i))
-                selecionar_conta_view.add_widget(btn)
-                btn.bind(on_release=lambda btn: escolha_conta(btn.text))
-
-            selecionar_conta_view_popup = Popup(title="SELECIONAR CONTA",content = selecionar_conta_view)
-            selecionar_conta_view_popup.open()
-
-        def selecionar_categoria(instance):
-            def escolha_categoria(text):
-                while "'" in text:
-                    text = text.replace("'",'')
-                text = text.replace("(",'')
-                text = text.replace(")",'')
-                text = text.split(',')
-                categoria.text = text[1]
-                selecionar_categoria_view_popup.dismiss()
-
-            selecionar_categoria_view = GridLayout(cols=2)
-
-            cursor.execute("SELECT * FROM categorias")
-            result_categorias = cursor.fetchall()
-
-            for i in result_categorias:
-                btn = Button(text=str(i))
-                selecionar_categoria_view.add_widget(btn)
-                btn.bind(on_release=lambda btn: escolha_categoria(btn.text))
-
-            selecionar_categoria_view_popup = Popup(title="SELECIONAR CONTA", content=selecionar_categoria_view)
-            selecionar_categoria_view_popup.open()
-
-        def selecionar_forma_pagamento(instance):
-            def escolha_forma_pagamento(text):
-                while "'" in text :
-                    text = text.replace("'",'')
-                text = text.replace(')','')
-                text = text.split(',')
-                forma_de_pagamento.text = text[1]
-                selecionar_forma_pagamento_view_popup.dismiss()
-
-            selecionar_forma_pagamento_view = GridLayout(cols=2)
-
-            cursor.execute("SELECT * FROM formas_pagamento")
-            result_formas_pagamento = cursor.fetchall()
-
-            for i in result_formas_pagamento:
-                btn = Button(text=str(i))
-                selecionar_forma_pagamento_view.add_widget(btn)
-                btn.bind(on_release=lambda btn: escolha_forma_pagamento(btn.text))
-
-            selecionar_forma_pagamento_view_popup = Popup(title="SELECIONAR FORMA DE PAGAMENTO",content = selecionar_forma_pagamento_view)
-            selecionar_forma_pagamento_view_popup.open()
+    def adicionar_conta_db(nome_titular,num_conta,tipo_conta,agencia,banco):
+        try:
+            list_db = [nome_titular,num_conta,tipo_conta,agencia,banco]
+            conn.execute("INSERT INTO contas(nome_titular,num_conta,tipo_conta,agencia,banco,saldo) VALUES(?,?,?,?,?,0)",list_db)
+            print(list_db," inserido no bd")
+        except Exception as e:
+            print(e)
 
 
 
 
+    def adicionar_categoria_db(nome_cadastro):
+        try:
+            list_db = [nome_cadastro]
+            conn.execute("INSERT INTO categorias(nome_categoria) VALUES(?)",list_db)
+            print(list_db," inserido no bd cadastro")
+        except Exception as e:
+            print(e)
+
+
+
+    def adicionar_forma_pagamento_db(nome_forma_pagamento):
+        try:
+            list_db = [nome_forma_pagamento]
+            conn.execute("INSERT INTO formas_pagamento(nome_forma_pagamento) VALUES(?)",list_db)
+            print(list_db," inserido no bd formas_pagamento")
+        except Exception as e:
+            print(e)
 
 
 
 
-        def arquivos_view(instance):
-            try:
-                df = pd.read_sql_query("SELECT * from fluxo", conn)
-
-                df.to_excel(r'fluxo.xlsx', index=False)
-
-                df_futuro = pd.read_sql_query("SELECT * from futuro", conn)
-                df_futuro.to_excel(r'futuro.xlsx', index=False)
-
-                df_contas = pd.read_sql_query("SELECT * from contas", conn)
-                df_contas.to_excel(r'contas.xlsx', index=False)
+    def adicionar_fluxo_db(id_conta,num_conta,banco,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta):
+        try:
+            list_db = [id_conta,num_conta,banco,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta]
+            conn.execute("INSERT INTO fluxo(id_conta,num_conta,banco,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento,saldo_da_conta) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",list_db)
+            print(list_db," inserido no db")
+        except Exception as e:
+            print(e)
 
 
-                #if sys.platform == "win32":
-                #    os.startfile('fluxo.xlsx')
-                #else:
-                #    opener = "open" if sys.platform == "darwin" else "xdg-open"
-                #    subprocess.call([opener, 'fluxo.xlsx'])
-            except Exception as e:
-                print(e)
-        def cadastro_view(instance):
-            def cadastrar_contas_view(instance):
-                def enviar_cadastro_conta_btt_func(instance):
-                    lista_para_db_conta = [nome_titular.text,num_conta.text,tipo_conta.text,agencia.text]
-                    adicionar_conta_db(nome_titular.text,num_conta.text,tipo_conta.text,agencia.text)
+    def adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento):
+        try:
+            list_db = [id_conta,num_conta,banco,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento]
+            conn.execute("INSERT INTO futuro(id_conta,num_conta,banco,tipo_conta,valor,data,categoria,descricao,observacao,contato,forma_de_pagamento) VALUES(?,?,?,?,?,?,?,?,?,?,?)",list_db)
+            print(list_db," inserido no db")
+        except Exception as e:
+            print(e)
+
+
+
+    class ModernApp(App):
+        def build(self):
+            def selecionar_conta(instance):
+                def escolha_conta(text):
+                    while "'" in text :
+                        text = text.replace("'",'')
+                    text = text.replace("(",'')
+                    text = text.split(",")
+
+                    print(text)
+
+
+
+                    conta.text = "{}\n{}\n{}\n{}\n{}".format(text[0],text[1],text[3],text[2],text[5])
+                    selecionar_conta_view_popup.dismiss()
+
+                selecionar_conta_view = GridLayout(cols=3)
+
+                cursor.execute("SELECT * FROM contas")
+                result_contas = cursor.fetchall()
+
+                for i in result_contas:
+                    btn = Button(text = str(i))
+                    selecionar_conta_view.add_widget(btn)
+                    btn.bind(on_release=lambda btn: escolha_conta(btn.text))
+
+                selecionar_conta_view_popup = Popup(title="SELECIONAR CONTA",content = selecionar_conta_view)
+                selecionar_conta_view_popup.open()
+
+            def selecionar_categoria(instance):
+                def escolha_categoria(text):
+                    while "'" in text:
+                        text = text.replace("'",'')
+                    text = text.replace("(",'')
+                    text = text.replace(")",'')
+                    text = text.split(',')
+                    categoria.text = text[1]
+                    selecionar_categoria_view_popup.dismiss()
+
+                selecionar_categoria_view = GridLayout(cols=2)
+
+                cursor.execute("SELECT * FROM categorias")
+                result_categorias = cursor.fetchall()
+
+                for i in result_categorias:
+                    btn = Button(text=str(i))
+                    selecionar_categoria_view.add_widget(btn)
+                    btn.bind(on_release=lambda btn: escolha_categoria(btn.text))
+
+                selecionar_categoria_view_popup = Popup(title="SELECIONAR CONTA", content=selecionar_categoria_view)
+                selecionar_categoria_view_popup.open()
+
+            def selecionar_forma_pagamento(instance):
+                def escolha_forma_pagamento(text):
+                    while "'" in text :
+                        text = text.replace("'",'')
+                    text = text.replace(')','')
+                    text = text.split(',')
+                    forma_de_pagamento.text = text[1]
+                    selecionar_forma_pagamento_view_popup.dismiss()
+
+                selecionar_forma_pagamento_view = GridLayout(cols=2)
+
+                cursor.execute("SELECT * FROM formas_pagamento")
+                result_formas_pagamento = cursor.fetchall()
+
+                for i in result_formas_pagamento:
+                    btn = Button(text=str(i))
+                    selecionar_forma_pagamento_view.add_widget(btn)
+                    btn.bind(on_release=lambda btn: escolha_forma_pagamento(btn.text))
+
+                selecionar_forma_pagamento_view_popup = Popup(title="SELECIONAR FORMA DE PAGAMENTO",content = selecionar_forma_pagamento_view)
+                selecionar_forma_pagamento_view_popup.open()
+
+
+
+
+            def excluir_repeticao_view_func(instance):
+                def excluir_rep_db(intance):
+                    list_db_exc = [excluir_repeticao_input.text]
+
+                    conn.execute("DELETE FROM futuro WHERE descricao = ?",list_db_exc)
+
+                excluir_repeticao_layout= GridLayout(cols=2)
+                excluir_repeticao_layout.add_widget(Label(text= "Qual a descrição da repetição ?"))
+                global excluir_repeticao_input
+                excluir_repeticao_input = TextInput()
+                excluir_repeticao_btt = Button(text = "Excluir repetição")
+                excluir_repeticao_btt.bind(on_release = excluir_rep_db)
+
+                excluir_repeticao_layout.add_widget(excluir_repeticao_input)
+                excluir_repeticao_layout.add_widget(excluir_repeticao_btt)
+
+                excluir_repeticao_layout_popup = Popup(title = "ASLKJDJLASÇ", content = excluir_repeticao_layout)
+                excluir_repeticao_layout_popup.open()
+
+
+
+            def futuros_view_func(instance):
+                def filtrar_func(instance):
+                        comeco_format_date = "{}-{}-{}".format(filtro_comeco_ano.text,filtro_comeco_mes.text,filtro_comeco_dia.text)
+                        fim_format_date = "{}-{}-{}".format(filtro_fim_ano.text,filtro_fim_mes.text,filtro_fim_dia.text)
+                        data_range_filter = pd.date_range(pd.Timestamp(comeco_format_date),pd.Timestamp(fim_format_date)-timedelta(days=1),freq='d')
+                        
+                        futuros_layout.clear_widgets()
+                        cursor.execute("SELECT * FROM futuro")
+                        futuros_result = cursor.fetchall()
+                        for i in futuros_result:
+                            print(i[6])
+                            if i[6] in data_range_filter:
+                            
+                            
+                                i = str(i)
+                                i=i.replace('(','')
+                                i=i.replace(')','')
+                                while "'" in i:
+                                    i=i.replace("'",'')
+                                
+
+                                split_i = i.split(",")
+
+                                id = split_i[0]
+                                banco = split_i[3]
+                                tipo  = split_i[4]
+                                valor = split_i[5]
+                                data = split_i[6]
+                                
+
+
+                                
+                                #futuros_btt_text = "{}".format()
+                                #id,conta, tipo,valor
+                                btn = Button(text="{} | {} | {} | {} | {} ".format(id,banco,tipo,valor,data), size_hint_y=None, height=40)
+                                btn.bind(on_release=lambda btn: escolha_futuro(btn.text))
+                                futuros_layout.add_widget(btn)
+                            
+                        else:
+                            pass
+                        
+                def escolha_futuro(text_futuros):
+                    def modificar_func(instance):
+                        def enviar_mod_db(instance):
+                            print(valor_modificar.text,data_modificar.text,categoria_modificar.text,descricao_modificar.text,observacao_modificar.text,forma_de_pagamento_modificar.text)
+                        print(text_futuros)
+                        print("Modificar func")
+                        modificar_func_layout = GridLayout(cols=4)
+                        lista_de_campos = ['valor_modificar','data_modificar','categoria_modificar','descricao_modificar','observacao_modificar','forma_de_pagamento_modificar']
+                        for i in lista_de_campos:
+                            modificar_func_layout.add_widget(Label(text=str(i)))
+                            globals()[str(i)] = TextInput(multiline=False, write_tab=False)
+                            modificar_func_layout.add_widget(globals()[str(i)])
+
+                        enviar_modificacao_btt = Button(text = "Enviar modificação")
+                        enviar_modificacao_btt.bind(on_release = enviar_mod_db)
+                        modificar_func_layout.add_widget(enviar_modificacao_btt)
+                        modificar_func_popup = Popup(title = "Modificar",content =modificar_func_layout )
+                        modificar_func_popup.open()
+                        
+
+                    def cancelar_func(instance):
+                        print(text_futuros)
+                        print("cancelar func")
+                        conn.execute("DELETE FROM futuro WHERE id_futuro = {}".format(text_futuros.split('|')[0]))
+                    
+                    def resolver_func(instance):
+                        print(text_futuros)
+                        print("resolver func")
+                        
+                        
+                        id_conta_resolver = item_result_splited[1].strip()
+                        num_conta_resolver = item_result_splited[2].strip()
+                        banco_resolver = item_result_splited[3].strip()
+                        tipo_conta_resolver = item_result_splited[4].strip()
+                        valor_resolver = item_result_splited[5].strip()
+                        data_resolver = item_result_splited[6].strip()
+                        categoria_resolver = item_result_splited[7].strip()
+                        descricao_resolver = item_result_splited[8].strip()
+                        observacao_resolver = item_result_splited[9].strip()
+                        contato_resolver = item_result_splited[10].strip()
+                        forma_de_pagamento_resolver = item_result_splited[11].strip()
+                        cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta_resolver))
+                        conta_atual = cursor.fetchone()
+                        saldo_atual = conta_atual[6]
+                        saldo_novo = [float(saldo_atual) + float(valor_resolver)]
+                        update_saldo = [saldo_novo[0],id_conta_resolver]
+
+                        print(id_conta_resolver,num_conta_resolver,banco_resolver,tipo_conta_resolver,valor_resolver,data_resolver,categoria_resolver,descricao_resolver,observacao_resolver,contato_resolver,forma_de_pagamento_resolver,saldo_novo[0])
+                        conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
+                        adicionar_fluxo_db(id_conta_resolver,num_conta_resolver,banco_resolver,tipo_conta_resolver,valor_resolver,data_resolver,categoria_resolver,descricao_resolver,observacao_resolver,contato_resolver,forma_de_pagamento_resolver,saldo_novo[0])
+                        conn.execute("DELETE FROM futuro WHERE id_futuro = {}".format(text_futuros.split('|')[0]))
+                        escolha_futuro_layout_popup.dismiss()
+
+                    
+                        
+                    
+                    
+                    item = cursor.execute("SELECT * FROM futuro WHERE id_futuro = {}".format(text_futuros.split('|')[0]))
+                    item_result =str( cursor.fetchone())
+                    while "'" in item_result : 
+                        item_result = item_result.replace("'",'')
+                    
+                    item_result_splited = item_result.split(',')
+                    
+
+                    escolha_futuro_layout = GridLayout(rows=4)
+                    escolha_futuro_layout.add_widget(Label (text = str(item_result)))
+                    modificar_futuros_btt = Button(text="Modificar")
+                    modificar_futuros_btt.bind(on_release = modificar_func)
+                    escolha_futuro_layout.add_widget(modificar_futuros_btt)
+
+                    cancelar_futuro_btt = Button(text="Cancelar")
+                    cancelar_futuro_btt.bind(on_release = cancelar_func)
+
+                    escolha_futuro_layout.add_widget(cancelar_futuro_btt)
+
+                    resolver_futuro_btt = Button(text = "Resolver")
+                    resolver_futuro_btt.bind(on_release = resolver_func)
+                    escolha_futuro_layout.add_widget(resolver_futuro_btt)
+
+                    escolha_futuro_layout_popup = Popup(title=text_futuros.split(",")[0],content = escolha_futuro_layout)
+                    escolha_futuro_layout_popup.open()
                 parte_conteudo.clear_widgets()
-                cadastro_layout_tela_2 = GridLayout(cols = 4)
-                #nome_titular
-                #num_conta
-                #tipo_conta
-                #agencia
-                lista_de_campos = ['nome_titular','num_conta','tipo_conta','agencia']
+
+                futuros_layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+                futuros_layout.bind(minimum_height=futuros_layout.setter('height'))
+
+
+
+                filtro_view = GridLayout(rows = 1,size_hint_y = None,row_default_height=40)
+                global filtro_comeco_ano,filtro_comeco_dia,filtro_comeco_mes,filtro_fim_dia,filtro_fim_mes,filtro_fim_ano
+                filtro_view.add_widget(Label(text = "Filtro "))
+                filtro_comeco_dia = TextInput()
+                filtro_comeco_mes = TextInput()
+                filtro_comeco_ano = TextInput()
+                filtro_fim_dia = TextInput()
+                filtro_fim_mes = TextInput()
+                filtro_fim_ano = TextInput()
+                
+
+                filtro_view.add_widget(Label(text = "DE "))
+                filtro_view.add_widget(filtro_comeco_dia)
+                filtro_view.add_widget(filtro_comeco_mes)
+                filtro_view.add_widget(filtro_comeco_ano)
+                filtro_view.add_widget(Label(text = "ATE "))
+                filtro_view.add_widget(filtro_fim_dia)
+                filtro_view.add_widget(filtro_fim_mes)
+                filtro_view.add_widget(filtro_fim_ano)
+
+                filtro_view_btt = Button(text = "filtrar",height=45)
+                
+
+                filtro_view_btt.bind(on_release = filtrar_func)
+                filtro_view.add_widget(filtro_view_btt)
+
+
+                futuros_layout.add_widget(filtro_view)
+
+
+
+                cursor.execute("SELECT * FROM futuro")
+                futuros_result = cursor.fetchall()
+                for i in futuros_result:
+                    
+                    
+                    i = str(i)
+                    i=i.replace('(','')
+                    i=i.replace(')','')
+                    while "'" in i:
+                        i=i.replace("'",'')
+                    
+
+                    split_i = i.split(",")
+
+                    id = split_i[0]
+                    banco = split_i[3]
+                    tipo  = split_i[4]
+                    valor = split_i[5]
+                    data = split_i[6]
+                    
+
+
+                    
+                    #futuros_btt_text = "{}".format()
+                    #id,conta, tipo,valor
+                    btn = Button(text="{} | {} | {} | {} | {} ".format(id,banco,tipo,valor,data), size_hint_y=None, height=40)
+                    btn.bind(on_release=lambda btn: escolha_futuro(btn.text))
+                    futuros_layout.add_widget(btn)
+                    
+                root = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))
+                root.add_widget(futuros_layout)
+
+                parte_conteudo.add_widget(root)
+
+            def arquivos_view(instance):
+                try:
+                    df = pd.read_sql_query("SELECT * from fluxo", conn)
+
+                    df.to_excel(r'fluxo.xlsx', index=False)
+
+                    df_futuro = pd.read_sql_query("SELECT * from futuro", conn)
+                    df_futuro.to_excel(r'futuro.xlsx', index=False)
+
+                    df_contas = pd.read_sql_query("SELECT * from contas", conn)
+                    df_contas.to_excel(r'contas.xlsx', index=False)
+
+
+                    #if sys.platform == "win32":
+                    #    os.startfile('fluxo.xlsx')
+                    #else:
+                    #    opener = "open" if sys.platform == "darwin" else "xdg-open"
+                    #    subprocess.call([opener, 'fluxo.xlsx'])
+                except Exception as e:
+                    print(e)
+            def cadastro_view(instance):
+                def cadastrar_contas_view(instance):
+                    def enviar_cadastro_conta_btt_func(instance):
+                        lista_para_db_conta = [nome_titular.text,num_conta.text,tipo_conta.text,agencia.text,banco.text]
+                        adicionar_conta_db(nome_titular.text,num_conta.text,tipo_conta.text,agencia.text,banco.text)
+                    parte_conteudo.clear_widgets()
+                    cadastro_layout_tela_2 = GridLayout(cols = 4)
+                    #nome_titular
+                    #num_conta
+                    #tipo_conta
+                    #agencia
+                    lista_de_campos = ['nome_titular','num_conta','tipo_conta','agencia','banco']
+                    for i in lista_de_campos:
+                        cadastro_layout_tela_2.add_widget(Label(text=str(i)))
+                        globals()[str(i)] = TextInput(multiline=False, write_tab=False)
+                        cadastro_layout_tela_2.add_widget(globals()[str(i)])
+                    enviar_cadastro_conta_btt = Button(text="Enviar")
+                    enviar_cadastro_conta_btt.bind(on_release = enviar_cadastro_conta_btt_func)
+                    cadastro_layout_tela_2.add_widget(enviar_cadastro_conta_btt)
+                    parte_conteudo.add_widget(cadastro_layout_tela_2)
+
+                def cadastrar_categorias_view(instance):
+                    def enviar_cadastro_categoria(instance):
+                        lista_para_db_conta = [categoria_nome_cadastro.text]
+                        adicionar_categoria_db(categoria_nome_cadastro.text)
+
+                    parte_conteudo.clear_widgets()
+                    cadastrar_categorias_layout = GridLayout(cols =2)
+                    cadastrar_categorias_layout.add_widget(Label(text = "Nome :"))
+                    categoria_nome_cadastro = TextInput(multiline=False, write_tab=False)
+                    cadastrar_categorias_layout.add_widget(categoria_nome_cadastro)
+                    categoria_nome_cadastro_btt = Button(text = "Enviar")
+                    categoria_nome_cadastro_btt.bind(on_release = enviar_cadastro_categoria)
+                    cadastrar_categorias_layout.add_widget(categoria_nome_cadastro_btt)
+
+                    parte_conteudo.add_widget(cadastrar_categorias_layout)
+
+                def cadastrar_forma_pagamento_view(instance):
+                    def enviar_cadastro_forma_pagamento(instance):
+                        lista_para_db_conta = [forma_pagamento_nome_cadastro.text]
+                        adicionar_forma_pagamento_db(forma_pagamento_nome_cadastro.text)
+                    parte_conteudo.clear_widgets()
+                    cadastrar_forma_pagamento_layout = GridLayout(cols=2)
+                    cadastrar_forma_pagamento_layout.add_widget(Label(text="Nome :"))
+                    forma_pagamento_nome_cadastro = TextInput(multiline=False, write_tab=False)
+                    cadastrar_forma_pagamento_layout.add_widget(forma_pagamento_nome_cadastro)
+                    forma_pagamento_nome_cadastro_btt = Button(text="Enviar")
+                    forma_pagamento_nome_cadastro_btt.bind(on_release=enviar_cadastro_forma_pagamento)
+                    cadastrar_forma_pagamento_layout.add_widget(forma_pagamento_nome_cadastro_btt)
+
+                    parte_conteudo.add_widget(cadastrar_forma_pagamento_layout)
+
+
+
+
+                parte_conteudo.clear_widgets()
+
+                cadastro_layout_tela_1 = GridLayout(rows=3,spacing = 25)
+
+                cadastrar_conta_btt = Button(text = "cadastrar Contas")
+                cadastrar_conta_btt.bind(on_press = cadastrar_contas_view)
+
+                cadastrar_categorias_btt = Button(text="Cadastrar Categorias")
+                cadastrar_categorias_btt.bind(on_press = cadastrar_categorias_view)
+
+                cadastrar_forma_pagamento_btt = Button(text="Cadastrar Formas de pagamento")
+                cadastrar_forma_pagamento_btt.bind(on_press = cadastrar_forma_pagamento_view)
+
+
+                
+                cadastro_layout_tela_1.add_widget(cadastrar_conta_btt)
+                cadastro_layout_tela_1.add_widget(cadastrar_categorias_btt)
+                cadastro_layout_tela_1.add_widget(cadastrar_forma_pagamento_btt)
+
+                parte_conteudo.add_widget(cadastro_layout_tela_1)
+
+
+            def financeiro_view(instance):
+
+                parte_conteudo.clear_widgets()
+                financeiro_view = GridLayout(cols=2)
+
+                # valor
+                # data
+                # vencimento
+                # repeticao
+                # descrição
+                # conta
+                # categoria
+                # contato
+                # forma de pagamento
+                # observações
+
+                lista_de_campos = ["valor", 'descricao', 'contato', 'observacoes']
+                # adicionar dinamicamente label e input
                 for i in lista_de_campos:
-                    cadastro_layout_tela_2.add_widget(Label(text=str(i)))
+                    financeiro_view.add_widget(Label(text=str(i)))
                     globals()[str(i)] = TextInput(multiline=False, write_tab=False)
-                    cadastro_layout_tela_2.add_widget(globals()[str(i)])
-                enviar_cadastro_conta_btt = Button(text="Enviar")
-                enviar_cadastro_conta_btt.bind(on_release = enviar_cadastro_conta_btt_func)
-                cadastro_layout_tela_2.add_widget(enviar_cadastro_conta_btt)
-                parte_conteudo.add_widget(cadastro_layout_tela_2)
+                    financeiro_view.add_widget(globals()[str(i)])
+                
+                financeiro_view.add_widget(Label(text="data"))
+                data_campo_input = GridLayout(cols=3)
+                
+                global ano,mes,dia
+                ano = TextInput(text = str(ano_hoje),multiline=False, write_tab=False)
+                mes = TextInput(text = str(mes_hoje),multiline=False, write_tab=False)
+                dia = TextInput(text = str(dia_hoje),multiline=False, write_tab=False)
+                data_campo_input.add_widget(dia)
+                data_campo_input.add_widget(mes)
+                data_campo_input.add_widget(ano)
+                financeiro_view.add_widget(data_campo_input)
+                financeiro_view.add_widget(Label(text="Repetição"))
+                repeticao_campo_input = GridLayout(cols=4)
+                global frequencia,quantidade
+                
+                
+                frequencia = TextInput(text = '0',multiline=False, write_tab=False)
+                quantidade= TextInput(text = '0',multiline=False, write_tab=False)
+                repeticao_campo_input.add_widget(Label(text = "Frequencia"))
+                repeticao_campo_input.add_widget(frequencia)
 
-            def cadastrar_categorias_view(instance):
-                def enviar_cadastro_categoria(instance):
-                    lista_para_db_conta = [categoria_nome_cadastro.text]
-                    adicionar_categoria_db(categoria_nome_cadastro.text)
-
-                parte_conteudo.clear_widgets()
-                cadastrar_categorias_layout = GridLayout(cols =2)
-                cadastrar_categorias_layout.add_widget(Label(text = "Nome :"))
-                categoria_nome_cadastro = TextInput(multiline=False, write_tab=False)
-                cadastrar_categorias_layout.add_widget(categoria_nome_cadastro)
-                categoria_nome_cadastro_btt = Button(text = "Enviar")
-                categoria_nome_cadastro_btt.bind(on_release = enviar_cadastro_categoria)
-                cadastrar_categorias_layout.add_widget(categoria_nome_cadastro_btt)
-
-                parte_conteudo.add_widget(cadastrar_categorias_layout)
-
-            def cadastrar_forma_pagamento_view(instance):
-                def enviar_cadastro_forma_pagamento(instance):
-                    lista_para_db_conta = [forma_pagamento_nome_cadastro.text]
-                    adicionar_forma_pagamento_db(forma_pagamento_nome_cadastro.text)
-                parte_conteudo.clear_widgets()
-                cadastrar_forma_pagamento_layout = GridLayout(cols=2)
-                cadastrar_forma_pagamento_layout.add_widget(Label(text="Nome :"))
-                forma_pagamento_nome_cadastro = TextInput(multiline=False, write_tab=False)
-                cadastrar_forma_pagamento_layout.add_widget(forma_pagamento_nome_cadastro)
-                forma_pagamento_nome_cadastro_btt = Button(text="Enviar")
-                forma_pagamento_nome_cadastro_btt.bind(on_release=enviar_cadastro_forma_pagamento)
-                cadastrar_forma_pagamento_layout.add_widget(forma_pagamento_nome_cadastro_btt)
-
-                parte_conteudo.add_widget(cadastrar_forma_pagamento_layout)
+                repeticao_campo_input.add_widget(Label(text = "Quantidade"))
+                repeticao_campo_input.add_widget(quantidade)
+                financeiro_view.add_widget(repeticao_campo_input)
 
 
+                
+
+                
+
+                financeiro_view.add_widget(Label(text="Conta"))
+                global conta
+                conta = Button(text = "Selecionar Conta")
+                conta.bind(on_release =selecionar_conta )
+                financeiro_view.add_widget(conta)
+
+                financeiro_view.add_widget(Label(text="Categoria"))
+                global categoria
+                categoria = Button(text = "Selecionar Categorias")
+                categoria.bind(on_release = selecionar_categoria)
+                financeiro_view.add_widget(categoria)
+
+                financeiro_view.add_widget(Label(text="Forma de pagamento"))
+                global forma_de_pagamento
+                forma_de_pagamento = Button(text = "Selecionar forma de pagamento")
+                forma_de_pagamento.bind(on_release = selecionar_forma_pagamento)
+                financeiro_view.add_widget(forma_de_pagamento)
+
+                btt_teste = Button(text="Enviar para financeiro")
+                btt_teste.bind(on_release=btt_test_func)
+                financeiro_view.add_widget(btt_teste)
+                valor.input_filter='float'
+
+                parte_conteudo.add_widget(financeiro_view)
+
+            def btt_test_func(instance):
+                def adicionar_receita(instance):
+                    valor_value = valor.text
+                    descricao_value = descricao.text
+                    contato_value = contato.text
+                    observacoes_value = observacoes.text
+
+                    print("RECEITA")
+                    id_conta = conta.text.split('\n')[0].strip()
+                    num_conta = conta.text.split('\n')[3].strip()
+                    tipo_conta =conta.text.split('\n')[2].strip()
+                    banco = conta.text.split('\n')[4].strip()
+
+                    data_value = "{}-{}-{}".format(ano.text,mes.text,dia.text)
+
+                    if pd.Timestamp(data_value) > pd.Timestamp(str(hoje)):
+                        if int(quantidade.text) <=1: 
+                            adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+                        else:
+                            for i in range(int(quantidade.text)):
+                                format_dias = "{} day".format(i*int(frequencia.text))
+                                data_value_rep = str(pd.Timestamp(data_value) + pd.Timedelta(format_dias)).split(' ')[0]
+                                print(data_value)
+                                adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value_rep,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+                                
 
 
-            parte_conteudo.clear_widgets()
-
-            cadastro_layout_tela_1 = GridLayout(rows=3,spacing = 25)
-            cadastrar_conta_btt = Button(text = "cadastrar Contas")
-            cadastrar_conta_btt.bind(on_press = cadastrar_contas_view)
-
-            cadastrar_categorias_btt = Button(text="Cadastrar Categorias")
-            cadastrar_categorias_btt.bind(on_press = cadastrar_categorias_view)
-
-            cadastrar_forma_pagamento_btt = Button(text="Cadastrar Formas de pagamento")
-            cadastrar_forma_pagamento_btt.bind(on_press = cadastrar_forma_pagamento_view)
-
+                    else:
+                        if int(quantidade.text) <=1:
+                            print("VAI PARA FLUXO")
+    
+                            cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta))
+                            conta_atual = cursor.fetchone()
+                            print(conta_atual)
+                            saldo_atual = conta_atual[6]
+                            saldo_novo = [float(saldo_atual) + float(valor_value)]
+                            update_saldo = [saldo_novo[0],id_conta]
 
 
-            cadastro_layout_tela_1.add_widget(cadastrar_conta_btt)
-            cadastro_layout_tela_1.add_widget(cadastrar_categorias_btt)
-            cadastro_layout_tela_1.add_widget(cadastrar_forma_pagamento_btt)
+                            conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
+                        
 
-            parte_conteudo.add_widget(cadastro_layout_tela_1)
+                            print(tipo_conta)
+                            adicionar_fluxo_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip(),float(saldo_novo[0]))
+                            
+                        else:
+                            for i in range(int(quantidade.text)):
+                                format_dias = "{} day".format(i*int(frequencia.text))
+                                data_value_rep = str(pd.Timestamp(data_value) + pd.Timedelta(format_dias)).split(' ')[0]
+                                print(data_value)
+                                adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value_rep,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+                    tela_escolher_popup.dismiss()        
 
 
-        def financeiro_view(instance):
 
-            parte_conteudo.clear_widgets()
-            financeiro_view = GridLayout(cols=2)
 
-            # valor
-            # data
-            # vencimento
-            # repeticao
-            # descrição
+                def adicionar_despesa(intance):
+                    valor_value = float(valor.text)*-1
+                    descricao_value = descricao.text
+                    contato_value = contato.text
+                    observacoes_value = observacoes.text
+                    print("DESPESA")
+                    id_conta = conta.text.split('\n')[0].strip()
+                    num_conta = conta.text.split('\n')[3].strip()
+                    tipo_conta =conta.text.split('\n')[2].strip()
+                    banco = conta.text.split('\n')[4].strip()
+
+                    data_value = "{}-{}-{}".format(ano.text,mes.text,dia.text)
+
+                    if pd.Timestamp(data_value) > pd.Timestamp(str(hoje)):
+                        if int(quantidade.text) <=1: 
+                            print("VAI PARA FUTURO")
+
+                            adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+                        else:
+                            for i in range(int(quantidade.text)):
+                                format_dias = "{} day".format(i*int(frequencia.text))
+                                data_value_rep = str(pd.Timestamp(data_value) + pd.Timedelta(format_dias)).split(' ')[0]
+                                print(data_value)
+                                adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value_rep,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+                        
+                                
+
+
+                    else:
+                        if int(quantidade.text) <=1:
+                            print("VAI PARA FLUXO")
+                        
+                        
+
+                            cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta))
+                            conta_atual = cursor.fetchone()
+                            print(conta_atual)
+                            saldo_atual = conta_atual[6]
+                            saldo_novo = [float(saldo_atual) + float(valor_value)]
+                            update_saldo = [saldo_novo[0],id_conta]
+
+
+
+                            conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
+                        
+
+                            print(tipo_conta)
+                            adicionar_fluxo_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip(),float(saldo_novo[0]))
+                        
+                        else:
+                            for i in range(int(quantidade.text)):
+                                format_dias = "{} day".format(i*int(frequencia.text))
+                                data_value_rep = str(pd.Timestamp(data_value) + pd.Timedelta(format_dias)).split(' ')[0]
+                                print(data_value)
+                                adicionar_futuro_db(id_conta,num_conta,banco,tipo_conta,valor_value,data_value_rep,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+                    tela_escolher_popup.dismiss()   
+
+
+
+
+                valor_value = valor.text
+                descricao_value = descricao.text
+                contato_value = contato.text
+                observacoes_value = observacoes.text
+                
+                tela_escolha = GridLayout(cols=2)
+
+                tela_escolha_receita_btt = Button(text="receita")
+                tela_escolha_receita_btt.bind(on_release=adicionar_receita)
+                tela_escolha_despesa_btt = Button(text="despesa")
+                tela_escolha_despesa_btt.bind(on_release=adicionar_despesa)
+                tela_escolha.add_widget(tela_escolha_receita_btt)
+                tela_escolha.add_widget(tela_escolha_despesa_btt)
+
+                tela_escolher_popup = Popup(title="ENTRADA / SAIDA", content=tela_escolha)
+                tela_escolher_popup.open()
+
+            layout = GridLayout(cols=2,spacing=50)
+            parte_conteudo = GridLayout(cols=1)
+
+            menu = GridLayout(rows=5)
+            btt_financeiro_menu = Button(text="Financeiro_view")
+            btt_financeiro_menu.bind(on_release=financeiro_view)
+            menu.add_widget(btt_financeiro_menu)
+
+            cadastros_btt = Button(text="Cadastros ")
+            cadastros_btt.bind(on_release = cadastro_view)
+            # o que precisa cadastrar
             # conta
             # categoria
-            # contato
             # forma de pagamento
-            # observações
+            # caso a forma de pagamento seja cartão crédito, e for receita, descontar valor do cartão
 
-            lista_de_campos = ["valor", 'repeticao', 'descricao', 'contato', 'observacoes']
+            menu.add_widget(cadastros_btt)
+
+            menu.add_widget(Button(text="Resumo "))
+            futuro_view_btt = Button(text="Futuros")
+            futuro_view_btt.bind(on_release=futuros_view_func)
+            menu.add_widget(futuro_view_btt)
+            arquivos_btt = Button(text="Arquivos ")
+            arquivos_btt.bind(on_release = arquivos_view)
+            menu.add_widget(arquivos_btt)
+
+            excluir_repeticao_view = Button(text="Excluir repetição")
+            excluir_repeticao_view.bind(on_release = excluir_repeticao_view_func)
+            menu.add_widget(excluir_repeticao_view)
+
+            layout.add_widget(menu)
+            layout.add_widget(parte_conteudo)
+
             # adicionar dinamicamente label e input
-            for i in lista_de_campos:
-                financeiro_view.add_widget(Label(text=str(i)))
-                globals()[str(i)] = TextInput(multiline=False, write_tab=False)
-                financeiro_view.add_widget(globals()[str(i)])
-            
-            financeiro_view.add_widget(Label(text="data"))
-            data_campo_input = GridLayout(cols=3)
-            global ano,mes,dia
-            ano = TextInput(text = str(ano_hoje),multiline=False, write_tab=False)
-            mes = TextInput(text = str(mes_hoje),multiline=False, write_tab=False)
-            dia = TextInput(text = str(dia_hoje),multiline=False, write_tab=False)
-            data_campo_input.add_widget(dia)
-            data_campo_input.add_widget(mes)
-            data_campo_input.add_widget(ano)
 
-            
-
-            financeiro_view.add_widget(data_campo_input)
-
-            financeiro_view.add_widget(Label(text="Conta"))
-            global conta
-            conta = Button(text = "Selecionar Conta")
-            conta.bind(on_release =selecionar_conta )
-            financeiro_view.add_widget(conta)
-
-            financeiro_view.add_widget(Label(text="Categoria"))
-            global categoria
-            categoria = Button(text = "Selecionar Categorias")
-            categoria.bind(on_release = selecionar_categoria)
-            financeiro_view.add_widget(categoria)
-
-            financeiro_view.add_widget(Label(text="Forma de pagamento"))
-            global forma_de_pagamento
-            forma_de_pagamento = Button(text = "Selecionar forma de pagamento")
-            forma_de_pagamento.bind(on_release = selecionar_forma_pagamento)
-            financeiro_view.add_widget(forma_de_pagamento)
-
-            btt_teste = Button(text="Enviar para financeiro")
-            btt_teste.bind(on_release=btt_test_func)
-            financeiro_view.add_widget(btt_teste)
-            valor.input_filter='float'
-
-            parte_conteudo.add_widget(financeiro_view)
-
-        def btt_test_func(instance):
-            def adicionar_receita(instance):
-                valor_value = valor.text
-                repeticao_value = repeticao.text
-                descricao_value = descricao.text
-                contato_value = contato.text
-                observacoes_value = observacoes.text
-                print("RECEITA")
-                id_conta = conta.text.split('\n')[0].strip()
-                num_conta = conta.text.split('\n')[3].strip()
-                tipo_conta =conta.text.split('\n')[2].strip()
-
-                data_value = "{}-{}-{}".format(ano.text,mes.text,dia.text)
-
-                if pd.Timestamp(data_value) > pd.Timestamp(str(hoje)):
-                    print("VAI PARA FUTURO")
-                    adicionar_futuro_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
+            return layout
 
 
-
-                else:
-                    print("VAI PARA FLUXO")
-                
-                
-
-                    cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta))
-                    conta_atual = cursor.fetchone()
-                    print(conta_atual)
-                    saldo_atual = conta_atual[5]
-                    saldo_novo = [float(saldo_atual) + float(valor_value)]
-                    update_saldo = [saldo_novo[0],id_conta]
+    if __name__ == '__main__':
+        Window.maximize()
+        ModernApp().run()
 
 
-                    conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
-                
+    conn.commit()
+    conn.close()
 
-                    print(tipo_conta)
-                    adicionar_fluxo_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip(),float(saldo_novo[0]))
-
-
-
-            def adicionar_despesa(intance):
-                valor_value = float(valor.text)*-1
-                repeticao_value = repeticao.text
-                descricao_value = descricao.text
-                contato_value = contato.text
-                observacoes_value = observacoes.text
-                print("DESPESA")
-                id_conta = conta.text.split('\n')[0].strip()
-                num_conta = conta.text.split('\n')[3].strip()
-                tipo_conta =conta.text.split('\n')[2].strip()
-
-                data_value = "{}-{}-{}".format(ano.text,mes.text,dia.text)
-
-                if pd.Timestamp(data_value) > pd.Timestamp(str(hoje)):
-                    print("VAI PARA FUTURO")
-                    adicionar_futuro_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip())
-
-
-
-                else:
-                    print("VAI PARA FLUXO")
-                
-                
-
-                    cursor.execute("SELECT * FROM contas WHERE id_contas = ?",list(id_conta))
-                    conta_atual = cursor.fetchone()
-                    print(conta_atual)
-                    saldo_atual = conta_atual[5]
-                    saldo_novo = [float(saldo_atual) + float(valor_value)]
-                    update_saldo = [saldo_novo[0],id_conta]
-
-
-
-                    conn.execute("UPDATE contas SET saldo = ? WHERE id_contas = ?",update_saldo)
-                
-
-                    print(tipo_conta)
-                    adicionar_fluxo_db(id_conta,num_conta,tipo_conta,valor_value,data_value,categoria.text.strip(),descricao.text.strip(),observacoes_value,contato.text,forma_de_pagamento.text.strip(),float(saldo_novo[0]))
-
-
-
-            valor_value = valor.text
-
-            repeticao_value = repeticao.text
-            descricao_value = descricao.text
-            contato_value = contato.text
-            observacoes_value = observacoes.text
-            
-            tela_escolha = GridLayout(cols=2)
-
-            tela_escolha_receita_btt = Button(text="receita")
-            tela_escolha_receita_btt.bind(on_release=adicionar_receita)
-            tela_escolha_despesa_btt = Button(text="despesa")
-            tela_escolha_despesa_btt.bind(on_release=adicionar_despesa)
-            tela_escolha.add_widget(tela_escolha_receita_btt)
-            tela_escolha.add_widget(tela_escolha_despesa_btt)
-
-            tela_escolher_popup = Popup(title="ENTRADA / SAIDA", content=tela_escolha)
-            tela_escolher_popup.open()
-
-        layout = GridLayout(cols=2,spacing=50)
-        parte_conteudo = GridLayout(cols=1)
-
-        menu = GridLayout(rows=4)
-        btt_financeiro_menu = Button(text="Financeiro_view")
-        btt_financeiro_menu.bind(on_release=financeiro_view)
-        menu.add_widget(btt_financeiro_menu)
-
-        cadastros_btt = Button(text="Cadastros ")
-        cadastros_btt.bind(on_release = cadastro_view)
-        # o que precisa cadastrar
-        # conta
-        # categoria
-        # forma de pagamento
-        # caso a forma de pagamento seja cartão crédito, e for receita, descontar valor do cartão
-
-        menu.add_widget(cadastros_btt)
-
-        menu.add_widget(Button(text="Resumo "))
-        arquivos_btt = Button(text="Arquivos ")
-        arquivos_btt.bind(on_release = arquivos_view)
-        menu.add_widget(arquivos_btt)
-
-        layout.add_widget(menu)
-        layout.add_widget(parte_conteudo)
-
-        # adicionar dinamicamente label e input
-
-        return layout
-
-
-if __name__ == '__main__':
-    Window.maximize()
-    ModernApp().run()
-
-
-conn.commit()
-conn.close()
+except Exception as e:
+    print(e)
