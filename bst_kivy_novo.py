@@ -266,16 +266,19 @@ try:
 
             def futuros_view_func(instance):
                 def filtrar_func(instance):
-                        comeco_format_date = "{}-{}-{}".format(filtro_comeco_ano.text,filtro_comeco_mes.text,filtro_comeco_dia.text)
-                        fim_format_date = "{}-{}-{}".format(filtro_fim_ano.text,filtro_fim_mes.text,filtro_fim_dia.text)
-                        data_range_filter = pd.date_range(pd.Timestamp(comeco_format_date),pd.Timestamp(fim_format_date)-timedelta(days=1),freq='d')
-                        
-                        futuros_layout.clear_widgets()
-                        cursor.execute("SELECT * FROM futuro")
-                        futuros_result = cursor.fetchall()
-                        for i in futuros_result:
-                            print(i[6])
-                            if i[6] in data_range_filter:
+                    tb = next( (t for t in ToggleButton.get_widgets('filtro') if t.state=='down'), None)
+                    test = tb.text if tb else ''
+                    print(test)
+                    comeco_format_date = "{}-{}-{}".format(filtro_comeco_ano.text,filtro_comeco_mes.text,filtro_comeco_dia.text)
+                    fim_format_date = "{}-{}-{}".format(filtro_fim_ano.text,filtro_fim_mes.text,filtro_fim_dia.text)
+                    data_range_filter = pd.date_range(pd.Timestamp(comeco_format_date),pd.Timestamp(fim_format_date)-timedelta(days=1),freq='d')
+                    
+                    futuros_layout.clear_widgets()
+                    cursor.execute("SELECT * FROM futuro")
+                    futuros_result = cursor.fetchall()
+                    for i in futuros_result:
+                        if test == "Contas a pagar":
+                            if i[6] in data_range_filter and i[5]<0 :
                             
                             
                                 i = str(i)
@@ -302,8 +305,70 @@ try:
                                 btn.bind(on_release=lambda btn: escolha_futuro(btn.text))
                                 futuros_layout.add_widget(btn)
                             
-                        else:
-                            pass
+                            else:
+                                pass
+                        if test == "Contas a receber":
+                            if i[6] in data_range_filter and i[5]>0 :
+                            
+                            
+                                i = str(i)
+                                i=i.replace('(','')
+                                i=i.replace(')','')
+                                while "'" in i:
+                                    i=i.replace("'",'')
+                                
+
+                                split_i = i.split(",")
+
+                                id = split_i[0]
+                                banco = split_i[3]
+                                tipo  = split_i[4]
+                                valor = split_i[5]
+                                data = split_i[6]
+                                
+
+
+                                
+                                #futuros_btt_text = "{}".format()
+                                #id,conta, tipo,valor
+                                btn = Button(text="{} | {} | {} | {} | {} ".format(id,banco,tipo,valor,data), size_hint_y=None, height=40)
+                                btn.bind(on_release=lambda btn: escolha_futuro(btn.text))
+                                futuros_layout.add_widget(btn)
+                            
+                            else:
+                                pass
+                        if test != 'Contas a receber' and test != 'Contas a pagar' :
+                            if i[6] in data_range_filter :
+                        
+                        
+                                i = str(i)
+                                i=i.replace('(','')
+                                i=i.replace(')','')
+                                while "'" in i:
+                                    i=i.replace("'",'')
+                                
+
+                                split_i = i.split(",")
+
+                                id = split_i[0]
+                                banco = split_i[3]
+                                tipo  = split_i[4]
+                                valor = split_i[5]
+                                data = split_i[6]
+                                
+
+
+                                
+                                #futuros_btt_text = "{}".format()
+                                #id,conta, tipo,valor
+                                btn = Button(text="{} | {} | {} | {} | {} ".format(id,banco,tipo,valor,data), size_hint_y=None, height=40)
+                                btn.bind(on_release=lambda btn: escolha_futuro(btn.text))
+                                futuros_layout.add_widget(btn)
+                            
+                            else:
+                                pass
+
+
                         
                 def escolha_futuro(text_futuros):
                     def modificar_func(instance):
@@ -394,9 +459,9 @@ try:
 
 
 
-                filtro_view = GridLayout(rows = 1,size_hint_y = None,row_default_height=40)
+                filtro_view = GridLayout(cols = 8,size_hint_y = None,row_default_height=15)
                 global filtro_comeco_ano,filtro_comeco_dia,filtro_comeco_mes,filtro_fim_dia,filtro_fim_mes,filtro_fim_ano
-                filtro_view.add_widget(Label(text = "Filtro "))
+                filtro_view_linha_2 = GridLayout(cols =3,size_hint_y = None,row_default_height=15,spacing = 20)
                 filtro_comeco_dia = TextInput()
                 filtro_comeco_mes = TextInput()
                 filtro_comeco_ano = TextInput()
@@ -414,14 +479,22 @@ try:
                 filtro_view.add_widget(filtro_fim_mes)
                 filtro_view.add_widget(filtro_fim_ano)
 
-                filtro_view_btt = Button(text = "filtrar",height=45)
+
+                contas_a_pagar = ToggleButton(text = "Contas a pagar",group = 'filtro')
+
+                contas_a_receber = ToggleButton(text = "Contas a receber", group = "filtro")
+                filtro_view_linha_2.add_widget(contas_a_pagar)
+                filtro_view_linha_2.add_widget(contas_a_receber)
+
+                filtro_view_btt = Button(text = "filtrar")
                 
 
                 filtro_view_btt.bind(on_release = filtrar_func)
-                filtro_view.add_widget(filtro_view_btt)
+                filtro_view_linha_2.add_widget(filtro_view_btt)
 
 
                 futuros_layout.add_widget(filtro_view)
+                futuros_layout.add_widget(filtro_view_linha_2)
 
 
 
@@ -770,7 +843,7 @@ try:
             layout = GridLayout(cols=2,spacing=50)
             parte_conteudo = GridLayout(cols=1)
 
-            menu = GridLayout(rows=5)
+            menu = GridLayout(rows=6)
             btt_financeiro_menu = Button(text="Financeiro_view")
             btt_financeiro_menu.bind(on_release=financeiro_view)
             menu.add_widget(btt_financeiro_menu)
