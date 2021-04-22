@@ -48,6 +48,33 @@ try:
         print(e)
 
 
+    try:
+            conn.execute("""CREATE TABLE clientes(
+        id_cliente INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        nome_cliente TEXT NOT NULL,
+        telefone_cliente TEXT NOT NULL,
+        email_cliente TEXT NOT NULL,
+        endereco_cliente TEXT NOT NULL,
+        bairro_cliente TEXT NOT NULL
+        )
+        """)
+    except Exception as e:
+        print(e)
+
+    try:
+            conn.execute("""CREATE TABLE fornecedores(
+        id_fornecedor INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        nome_fornecedor TEXT NOT NULL,
+        telefone_fornecedor TEXT NOT NULL,
+        email_fornecedor TEXT NOT NULL,
+        endereco_fornecedor TEXT NOT NULL,
+        bairro_fornecedor TEXT NOT NULL
+        )
+        """)
+    except Exception as e:
+        print(e)
+
+
 
     try:
         conn.execute("""CREATE TABLE fluxo(
@@ -119,6 +146,22 @@ try:
         try:
             list_db = [nome_titular,num_conta,tipo_conta,agencia,banco]
             conn.execute("INSERT INTO contas(nome_titular,num_conta,tipo_conta,agencia,banco,saldo) VALUES(?,?,?,?,?,0)",list_db)
+            print(list_db," inserido no bd")
+        except Exception as e:
+            print(e)
+    
+    def adicionar_cliente_db(nome_cliente,telefone_cliente,email_cliente,endereco_cliente,bairro_cliente):
+        try:
+            list_db = [nome_cliente,telefone_cliente,email_cliente,endereco_cliente,bairro_cliente]
+            conn.execute("INSERT INTO clientes(nome_cliente,telefone_cliente,email_cliente,endereco_cliente,bairro_cliente) VALUES(?,?,?,?,?)",list_db)
+            print(list_db," inserido no bd")
+        except Exception as e:
+            print(e)
+
+    def adicionar_fornecedor_db(nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor):
+        try:
+            list_db = [nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor]
+            conn.execute("INSERT INTO fornecedores(nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor) VALUES(?,?,?,?,?)",list_db)
             print(list_db," inserido no bd")
         except Exception as e:
             print(e)
@@ -544,6 +587,12 @@ try:
                     df_contas = pd.read_sql_query("SELECT * from contas", conn)
                     df_contas.to_excel(r'contas.xlsx', index=False)
 
+                    df_clientes = pd.read_sql_query("SELECT * from clientes", conn)
+                    df_clientes.to_excel(r'clientes.xlsx', index=False)
+
+                    df_fornecedores = pd.read_sql_query("SELECT * from fornecedores", conn)
+                    df_fornecedores.to_excel(r'fornecedores.xlsx', index=False)
+
 
                     #if sys.platform == "win32":
                     #    os.startfile('fluxo.xlsx')
@@ -604,6 +653,62 @@ try:
 
                     parte_conteudo.add_widget(cadastrar_forma_pagamento_layout)
 
+                def cadastrar_cliente_view(instance):
+                    def enviar_cliente_db(instance):
+                        nome_cliente = nome.text
+                        telefone_cliente = telefone.text
+                        email_cliente = email.text
+                        endereco_cliente = endereco.text
+                        bairro_cliente = bairro.text
+
+                        list_bd = [nome_cliente,telefone_cliente,email_cliente,endereco_cliente,bairro_cliente]
+
+                        adicionar_cliente_db(nome_cliente,telefone_cliente,email_cliente,endereco_cliente,bairro_cliente)
+                        
+                    cadastrar_cliente_layout = GridLayout(cols = 4)
+                    lista_de_campos = ["nome", 'telefone', 'email', 'endereco','bairro']
+                # adicionar dinamicamente label e input
+                    for i in lista_de_campos:
+                        cadastrar_cliente_layout.add_widget(Label(text=str(i)))
+                        globals()[str(i)] = TextInput(multiline=False, write_tab=False)
+                        cadastrar_cliente_layout.add_widget(globals()[str(i)])
+
+                    enviar_cliente_btt = Button(text = "Enviar")
+                    enviar_cliente_btt.bind(on_release = enviar_cliente_db)
+                    cadastrar_cliente_layout.add_widget(enviar_cliente_btt)
+
+                    cadastrar_cliente_popup = Popup(title = "CLIENTES",content = cadastrar_cliente_layout)
+                    cadastrar_cliente_popup.open()
+
+
+                def cadastrar_fornecedor_view(instance):
+                    def enviar_fornecedor_db(instance):
+                        nome_fornecedor = nome.text
+                        telefone_fornecedor = telefone.text
+                        email_fornecedor = email.text
+                        endereco_fornecedor = endereco.text
+                        bairro_fornecedor = bairro.text
+
+                        list_bd = [nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor]
+
+                        adicionar_fornecedor_db(nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor)
+                        
+                    cadastrar_fornecedor_layout = GridLayout(cols = 4)
+                    lista_de_campos = ["nome", 'telefone', 'email', 'endereco','bairro']
+                # adicionar dinamicamente label e input
+                    for i in lista_de_campos:
+                        cadastrar_fornecedor_layout.add_widget(Label(text=str(i)))
+                        globals()[str(i)] = TextInput(multiline=False, write_tab=False)
+                        cadastrar_fornecedor_layout.add_widget(globals()[str(i)])
+
+                    enviar_fornecedor_btt = Button(text = "Enviar")
+                    enviar_fornecedor_btt.bind(on_release = enviar_fornecedor_db)
+                    cadastrar_fornecedor_layout.add_widget(enviar_fornecedor_btt)
+
+                    cadastrar_fornecedores_popup = Popup(title = "fornecedores_",content = cadastrar_fornecedor_layout)
+                    cadastrar_fornecedores_popup.open()
+
+
 
 
 
@@ -620,12 +725,24 @@ try:
                 cadastrar_forma_pagamento_btt = Button(text="Cadastrar Formas de pagamento")
                 cadastrar_forma_pagamento_btt.bind(on_press = cadastrar_forma_pagamento_view)
 
+                cadastrar_cliente = Button(text = "Cadastrar cliente")
+                cadastrar_cliente.bind(on_release = cadastrar_cliente_view)
+
+
+
+                cadastrar_fornecedor = Button(text = "Cadastrar fornecedor")
+                cadastrar_fornecedor.bind(on_release = cadastrar_fornecedor_view)
+
+
+
+
 
                 
                 cadastro_layout_tela_1.add_widget(cadastrar_conta_btt)
                 cadastro_layout_tela_1.add_widget(cadastrar_categorias_btt)
                 cadastro_layout_tela_1.add_widget(cadastrar_forma_pagamento_btt)
-
+                cadastro_layout_tela_1.add_widget(cadastrar_cliente)
+                cadastro_layout_tela_1.add_widget(cadastrar_fornecedor)
                 parte_conteudo.add_widget(cadastro_layout_tela_1)
 
 
@@ -645,7 +762,7 @@ try:
                 # forma de pagamento
                 # observações
 
-                lista_de_campos = ["valor", 'descricao', 'contato', 'observacoes']
+                lista_de_campos = ["valor", 'descricao','contato', 'observacoes']
                 # adicionar dinamicamente label e input
                 for i in lista_de_campos:
                     financeiro_view.add_widget(Label(text=str(i)))
@@ -699,6 +816,7 @@ try:
                 forma_de_pagamento = Button(text = "Selecionar forma de pagamento")
                 forma_de_pagamento.bind(on_release = selecionar_forma_pagamento)
                 financeiro_view.add_widget(forma_de_pagamento)
+                
 
                 btt_teste = Button(text="Enviar para financeiro")
                 btt_teste.bind(on_release=btt_test_func)
