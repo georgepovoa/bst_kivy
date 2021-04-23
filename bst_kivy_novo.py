@@ -209,7 +209,7 @@ try:
 
 
 
-    class ModernApp(App):
+    class BstApp(App):
         def build(self):
             def selecionar_conta(instance):
                 def escolha_conta(text):
@@ -283,6 +283,32 @@ try:
                 selecionar_forma_pagamento_view_popup = Popup(title="SELECIONAR FORMA DE PAGAMENTO",content = selecionar_forma_pagamento_view)
                 selecionar_forma_pagamento_view_popup.open()
 
+
+            def funcionarios_view_func(instance):
+                def gerenciar_funcionarios_func(instance):
+                    gerenciar_funcionarios_layout = GridLayout(cols = 4)
+                    adicionar_funcionario_btt = Button(text = "Adicionar funcionário")
+                    remover_funcionario_btt = Button(text = "Remover funcionário")
+                    ajustar_funcionario_btt = Button(text = "Ajustar funcionário")
+                    gerenciar_funcionarios_layout.add_widget(adicionar_funcionario_btt)
+                    gerenciar_funcionarios_layout.add_widget(remover_funcionario_btt)
+                    gerenciar_funcionarios_layout.add_widget(ajustar_funcionario_btt)
+
+                    gerenciar_funcionarios_popup = Popup(title = "Gerenciar",content = gerenciar_funcionarios_layout)
+                    gerenciar_funcionarios_popup.open()
+
+                parte_conteudo.clear_widgets()
+                funcionarios_layout =GridLayout(rows=3,spacing = 25)
+                gerenciar_funcionarios = Button(text= "Gerenciar funcionários")
+                gerenciar_funcionarios.bind(on_release = gerenciar_funcionarios_func)
+                resumo_de_funcionarios = Button(text= "Resumo de funcionários")
+                alterar_cobrança = Button(text = "Alterar cobrança")
+
+                funcionarios_layout.add_widget(gerenciar_funcionarios)
+                funcionarios_layout.add_widget(resumo_de_funcionarios)
+                funcionarios_layout.add_widget(alterar_cobrança)
+
+                parte_conteudo.add_widget(funcionarios_layout)
 
 
 
@@ -988,6 +1014,10 @@ try:
             excluir_repeticao_view.bind(on_release = excluir_repeticao_view_func)
             menu.add_widget(excluir_repeticao_view)
 
+            funcionarios_view = Button(text="funcionário")
+            funcionarios_view.bind(on_release = funcionarios_view_func)
+            menu.add_widget(funcionarios_view)
+
             layout.add_widget(menu)
             layout.add_widget(parte_conteudo)
 
@@ -998,7 +1028,7 @@ try:
 
     if __name__ == '__main__':
         Window.maximize()
-        ModernApp().run()
+        BstApp().run()
 
 
     conn.commit()
