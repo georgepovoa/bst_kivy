@@ -1104,16 +1104,148 @@ class Bst_sistemaApp(App):
             try:
                 def gerenciar_estoque_func(instance):
                     def adicionar_estoque_func(instance):
-                        print(instance.text)
+                        adicionar_estoque_layout = GridLayout(rows=9,spacing = 15,padding=10)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Categoria"))
+                        categoria = TextInput(multiline=False, write_tab=False)
+                        adicionar_estoque_layout.add_widget(categoria)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Produto"))
+                        produto = TextInput(multiline=False, write_tab=False)
+                        adicionar_estoque_layout.add_widget(produto)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Fornecedor"))
+                        fornecedor = TextInput(multiline=False, write_tab=False)
+                        adicionar_estoque_layout.add_widget(fornecedor)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Preço"))
+                        preco = TextInput(multiline=False, write_tab=False)
+                        adicionar_estoque_layout.add_widget(preco)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Tipo de medida"))
+                        tipo_medida = TextInput(multiline=False, write_tab=False)
+                        adicionar_estoque_layout.add_widget(tipo_medida)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Valor de medida "))
+                        valor_medida = TextInput(multiline=False, write_tab=False)
+                        adicionar_estoque_layout.add_widget(valor_medida)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Data de entrada "))
+
+                        data_entrada_grid = GridLayout(rows=1,spacing = 7)
+
+                        data_entrada_dia = TextInput(multiline=False, write_tab=False)
+                        data_entrada_mes = TextInput(multiline=False, write_tab=False)
+                        data_entrada_ano = TextInput(multiline=False, write_tab=False)
+
+                        data_entrada_grid.add_widget(data_entrada_dia)
+                        data_entrada_grid.add_widget(data_entrada_mes)
+                        data_entrada_grid.add_widget(data_entrada_ano)
+                        
+                        adicionar_estoque_layout.add_widget(data_entrada_grid)
+
+                        fechar_btt = Button(text = "Fechar Janela")
+                        adicionar_estoque_layout.add_widget(fechar_btt)
+
+                        adicionar_btt = Button(text = "Adicionar")
+                        
+                        adicionar_estoque_layout.add_widget(adicionar_btt)
+                        
+                         
+
+                        adicionar_estoque_popup = Popup(title ="ADICIONAR ESTOQUE",content = adicionar_estoque_layout )
+                        adicionar_estoque_popup.open()
+                        
+
+                        
 
                     def pesquisar_estoque_func(instance):
-                        print(instance.text)
+                        pesquisar_estoque_layout = GridLayout(rows = 6,spacing = 7,padding=10)
+
+                        pesquisar_estoque_layout.add_widget(Label(text = "ID"))
+                        id_pesquisa = TextInput(multiline=False, write_tab=False)
+                        pesquisar_estoque_layout.add_widget(id_pesquisa)
+
+                        pesquisar_estoque_layout.add_widget(Label(text = "Categoria"))
+                        categoria_pesquisa = TextInput(multiline=False, write_tab=False)
+                        pesquisar_estoque_layout.add_widget(categoria_pesquisa)
+
+                        pesquisar_estoque_layout.add_widget(Label(text = "Produto"))
+                        produto_pesquisa = TextInput(multiline=False, write_tab=False)
+                        pesquisar_estoque_layout.add_widget(produto_pesquisa)
+
+                        pesquisar_estoque_layout.add_widget(Label(text = "Fornecedor"))
+                        fornecedor_pesquisa = TextInput(multiline=False, write_tab=False)
+                        pesquisar_estoque_layout.add_widget(fornecedor_pesquisa)
+
+                        pesquisar_estoque_layout.add_widget(Label(text = "Data de entrada"))
+
+                        data_entrada_grid_pesquisa = GridLayout(rows=1,spacing = 7)
+                        
+
+                        data_entrada_dia_pesquisa = TextInput(multiline=False, write_tab=False)
+                        data_entrada_mes_pesquisa = TextInput(multiline=False, write_tab=False)
+                        data_entrada_ano_pesquisa = TextInput(multiline=False, write_tab=False)
+
+                        data_entrada_grid_pesquisa.add_widget(data_entrada_dia_pesquisa)
+                        data_entrada_grid_pesquisa.add_widget(data_entrada_mes_pesquisa)
+                        data_entrada_grid_pesquisa.add_widget(data_entrada_ano_pesquisa)
+                        
+                        pesquisar_estoque_layout.add_widget(data_entrada_grid_pesquisa)
+
+                        fechar_btt = Button(text = "Fechar Janela")
+                        pesquisar_estoque_layout.add_widget(fechar_btt)
+
+                        adicionar_btt = Button(text = "Pesquisar")
+                        
+                        pesquisar_estoque_layout.add_widget(adicionar_btt)
+
+                        
+
+                        
+
+                        pesquisar_estoque_popup= Popup(title = "Pesquisar",content=pesquisar_estoque_layout,size_hint=(0.5,0.7))
+                        pesquisar_estoque_popup.open()
+
+                        
+
+                        
+                        
                         
                     def remover_estoque_func(instance):
-                        print(instance.text)
+                        remover_estoque_layout = GridLayout(rows = 2)
+                        
+                        remover_estoque_layout.add_widget(Label(text =  "ID"))
+                        id_remover = TextInput(multiline=False, write_tab=False)
+                        remover_estoque_layout.add_widget(id_remover)
+                        
+                        fechar_btt = Button(text = "Fechar Janela")
+                        remover_estoque_layout.add_widget(fechar_btt)
+
+                        adicionar_btt = Button(text = "Remover")
+                        
+                        remover_estoque_layout.add_widget(adicionar_btt)
+
+                        remover_estoque_popup = Popup(title="Remover",content = remover_estoque_layout,size_hint = (0.3,0.3))
+                        remover_estoque_popup.open()
+                        
                         
                     def alterar_estoque_func(instance):
-                        print(instance.text)
+                        alterar_estoque_layout = GridLayout(rows = 2)
+                        
+                        alterar_estoque_layout.add_widget(Label(text =  "ID"))
+                        id_alterar = TextInput(multiline=False, write_tab=False)
+                        alterar_estoque_layout.add_widget(id_alterar)
+                        
+                        fechar_btt = Button(text = "Fechar Janela")
+                        alterar_estoque_layout.add_widget(fechar_btt)
+
+                        adicionar_btt = Button(text = "Remover")
+                        
+                        alterar_estoque_layout.add_widget(adicionar_btt)
+
+                        alterar_estoque_popup = Popup(title="Alterar",content = alterar_estoque_layout,size_hint = (0.3,0.3))
+                        alterar_estoque_popup.open()
                     
 
                     gerenciar_estoque_layout = GridLayout(rows=2,spacing=25,padding=10)
@@ -1191,13 +1323,33 @@ class Bst_sistemaApp(App):
                     
                 def etiquetas_func(instance):
                     def pelo_id_func(instance):
-                        print(instance)
+                        
+                        pelo_id_layout = GridLayout(rows = 2)
+                        pelo_id_layout.add_widget(Label(text = "ID"))
+                        
+                        id_input_impressao = TextInput(multiline=False, write_tab=False)
+                        pelo_id_layout.add_widget(id_input_impressao)
+
+                        pelo_id_layout.add_widget(Button(text = "Imprimir"))
+
+                        pelo_id_popup = Popup(title= "Imprimir etiqueta",content = pelo_id_layout)
+                        pelo_id_popup.open()
                         
                     def por_categoria_func(instance):
-                        print(instance)
+                        por_categoria_layout = GridLayout(rows = 2)
+                        por_categoria_layout.add_widget(Label(text = "Lista de botões de categorias virá um dia"))
+
+                        por_categoria_popup = Popup(title= "Imprimir etiqueta",content = por_categoria_layout)
+                        por_categoria_popup.open()
                         
                     def por_produto_func(instance):
-                        print(instance)
+                        por_produto_layout = GridLayout(rows=2)
+                        por_produto_layout.add_widget(Label(text = "Lista de botões de Produtos virá um dia"))
+
+                        por_produto_popup = Popup(title= "Imprimir etiqueta",content = por_produto_layout )
+
+
+
                         
                     etiquetas_layout = GridLayout(rows = 2,spacing=25,padding=10)
 
@@ -1221,18 +1373,91 @@ class Bst_sistemaApp(App):
 
                     
                 def cadastrar_estoque_func(instance):
-                    def cadastrar_categoria_func(insntace):
-                        print(instance)
+                    
+                    def cadastrar_categoria_produto_func(insntace):
+    
+                        cadastrar_categoria_produto_layout = GridLayout(cols =2)
+                        cadastrar_categoria_produto_layout.add_widget(Label(text = "Nome :"))
+                        categoria_nome_cadastro = TextInput(multiline=False, write_tab=False)
+                        cadastrar_categoria_produto_layout.add_widget(categoria_nome_cadastro)
+                        categoria_nome_cadastro_btt = Button(text = "Enviar")
+                        
+                        cadastrar_categoria_produto_layout.add_widget(categoria_nome_cadastro_btt)
+
+                        cadastro_categoria_popup = Popup(title = "Cadastrar Categorias",content = cadastrar_categoria_produto_layout)
+                        cadastro_categoria_popup.open()
+
+                        
                     def cadastrar_produto_func(insntace):
-                        print(instance)
+                        
+                        cadastrar_produto_layout = GridLayout(cols =2)
+                        cadastrar_produto_layout.add_widget(Label(text = "Nome :"))
+                        produto_nome_cadastro = TextInput(multiline=False, write_tab=False)
+                        cadastrar_produto_layout.add_widget(produto_nome_cadastro)
+                        categoria_nome_cadastro_btt = Button(text = "Enviar")
+                        
+                        cadastrar_produto_layout.add_widget(categoria_nome_cadastro_btt)
+
+                        cadastro_produto_popup = Popup(title = "Cadastrar Produtos",content = cadastrar_produto_layout)
+                        cadastro_produto_popup.open()
+                        
+                       
                     def cadastrar_fornecedor_func(insntace):
-                        print(instance)
+                            def enviar_fornecedor_db(instance):
+                                nome_fornecedor = nome.text
+                                telefone_fornecedor = telefone.text
+                                email_fornecedor = email.text
+                                endereco_fornecedor = endereco.text
+                                bairro_fornecedor = bairro.text
+
+                                list_bd = [nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor]
+
+                                adicionar_fornecedor_db(nome_fornecedor,telefone_fornecedor,email_fornecedor,endereco_fornecedor,bairro_fornecedor)
+                                
+                            cadastrar_fornecedor_layout = GridLayout(cols = 4)
+                            cadastrar_fornecedor_layout.add_widget(Label(text = "Nome"))
+                            nome= TextInput(multiline=False, write_tab=False)
+                            cadastrar_fornecedor_layout.add_widget(nome)
+
+                            cadastrar_fornecedor_layout.add_widget(Label(text = "Telefone"))
+                            telefone= TextInput(multiline=False, write_tab=False)
+                            cadastrar_fornecedor_layout.add_widget(telefone)
+
+                            cadastrar_fornecedor_layout.add_widget(Label(text = "Email"))
+                            email= TextInput(multiline=False, write_tab=False)
+                            cadastrar_fornecedor_layout.add_widget(email)
+
+                            cadastrar_fornecedor_layout.add_widget(Label(text = "Endereco"))
+                            endereco= TextInput(multiline=False, write_tab=False)
+                            cadastrar_fornecedor_layout.add_widget(endereco)
+
+                            cadastrar_fornecedor_layout.add_widget(Label(text = "Bairro"))
+                            bairro= TextInput(multiline=False, write_tab=False)
+                            cadastrar_fornecedor_layout.add_widget(bairro)
+
+                            enviar_fornecedor_btt = Button(text = "Enviar")
+                            enviar_fornecedor_btt.bind(on_release = enviar_fornecedor_db)
+                            cadastrar_fornecedor_layout.add_widget(enviar_fornecedor_btt)
+
+                            cadastrar_fornecedores_popup = Popup(title = "Fornecedores",content = cadastrar_fornecedor_layout)
+                            cadastrar_fornecedores_popup.open()
                     def cadastrar_unidade_func(insntace):
-                        print(instance)
+                        
+                        cadastrar_unidade_layout = GridLayout(rows = 2)
+                        cadastrar_unidade_layout.add_widget(Label(text = "Nome da unidade de medida"))
+                        unidade_de_medida_input = TextInput(multiline=False, write_tab=False)
+                        cadastrar_unidade_layout.add_widget(unidade_de_medida_input)
+
+                        cadastrar_unidade_btt = Button(text = "Cadastrar")
+                        cadastrar_unidade_layout.add_widget(cadastrar_unidade_btt)
+
+                        cadastrar_unidade_popup = Popup(title = "Cadastrar unidade de medida",content = cadastrar_unidade_layout)
+                        cadastrar_unidade_popup.open()
+                        
                     cadastrar_layout = GridLayout(rows = 2,spacing=25,padding=10)
 
                     cadastrar_categoria_btt = Button(text = "Categoria")
-                    cadastrar_categoria_btt.bind(on_release=cadastrar_categoria_func)
+                    cadastrar_categoria_btt.bind(on_release=cadastrar_categoria_produto_func)
                     cadastrar_layout.add_widget(cadastrar_categoria_btt)
                     
                     cadastrar_produto_btt = Button(text = "Produto")
