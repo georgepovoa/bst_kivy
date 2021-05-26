@@ -1107,28 +1107,46 @@ class Bst_sistemaApp(App):
                         adicionar_estoque_layout = GridLayout(rows=9,spacing = 15,padding=10)
 
                         adicionar_estoque_layout.add_widget(Label(text = "Categoria"))
-                        categoria = TextInput(multiline=False, write_tab=False)
+                        categoria = Button(text = "Escolher categoria")
                         adicionar_estoque_layout.add_widget(categoria)
 
                         adicionar_estoque_layout.add_widget(Label(text = "Produto"))
-                        produto = TextInput(multiline=False, write_tab=False)
+                        produto = Button(text = "Escolher Produto")
                         adicionar_estoque_layout.add_widget(produto)
 
                         adicionar_estoque_layout.add_widget(Label(text = "Fornecedor"))
-                        fornecedor = TextInput(multiline=False, write_tab=False)
+                        fornecedor = Button(text = "Escolher Fornecedor")
                         adicionar_estoque_layout.add_widget(fornecedor)
 
                         adicionar_estoque_layout.add_widget(Label(text = "Preço"))
+                        campo_preco_de_compra = GridLayout(rows=1,spacing = 7)
                         preco = TextInput(multiline=False, write_tab=False)
-                        adicionar_estoque_layout.add_widget(preco)
+                        preco_compra_tipo = Button(text = "UNIDADE OU METRO BOLINHA")
+                        campo_preco_de_compra.add_widget(preco)
+                        campo_preco_de_compra.add_widget(preco_compra_tipo)
+                        
+                        adicionar_estoque_layout.add_widget(campo_preco_de_compra)
+
+                        adicionar_estoque_layout.add_widget(Label(text = "Preço de venda"))
+                        campo_preco_de_venda = GridLayout(rows=1,spacing = 7)
+                        preco_de_venda = TextInput(multiline=False, write_tab=False)
+                        tipo_de_venda = Button(text = "UNIDADE OU METRO BOLINHA")
+                        campo_preco_de_venda.add_widget(preco_de_venda)
+                        campo_preco_de_venda.add_widget(tipo_de_venda)
+                        adicionar_estoque_layout.add_widget(campo_preco_de_venda)
 
                         adicionar_estoque_layout.add_widget(Label(text = "Tipo de medida"))
-                        tipo_medida = TextInput(multiline=False, write_tab=False)
+                        tipo_medida = Button(text = "Escolher Tipo de medida")
                         adicionar_estoque_layout.add_widget(tipo_medida)
 
                         adicionar_estoque_layout.add_widget(Label(text = "Valor de medida "))
                         valor_medida = TextInput(multiline=False, write_tab=False)
                         adicionar_estoque_layout.add_widget(valor_medida)
+
+                        
+                        
+                        
+                                                           
 
                         adicionar_estoque_layout.add_widget(Label(text = "Data de entrada "))
 
@@ -1162,20 +1180,20 @@ class Bst_sistemaApp(App):
                     def pesquisar_estoque_func(instance):
                         pesquisar_estoque_layout = GridLayout(rows = 6,spacing = 7,padding=10)
 
-                        pesquisar_estoque_layout.add_widget(Label(text = "ID"))
+                        pesquisar_estoque_layout.add_widget(Label(text = "CD BARRA"))
                         id_pesquisa = TextInput(multiline=False, write_tab=False)
                         pesquisar_estoque_layout.add_widget(id_pesquisa)
 
                         pesquisar_estoque_layout.add_widget(Label(text = "Categoria"))
-                        categoria_pesquisa = TextInput(multiline=False, write_tab=False)
+                        categoria_pesquisa = Button(text = "Escolher Categoria")
                         pesquisar_estoque_layout.add_widget(categoria_pesquisa)
 
                         pesquisar_estoque_layout.add_widget(Label(text = "Produto"))
-                        produto_pesquisa = TextInput(multiline=False, write_tab=False)
+                        produto_pesquisa = Button(text = "Escolher Produto")
                         pesquisar_estoque_layout.add_widget(produto_pesquisa)
 
                         pesquisar_estoque_layout.add_widget(Label(text = "Fornecedor"))
-                        fornecedor_pesquisa = TextInput(multiline=False, write_tab=False)
+                        fornecedor_pesquisa = Button(text = "Escolher fornecedor")
                         pesquisar_estoque_layout.add_widget(fornecedor_pesquisa)
 
                         pesquisar_estoque_layout.add_widget(Label(text = "Data de entrada"))
@@ -1380,6 +1398,10 @@ class Bst_sistemaApp(App):
                         cadastrar_categoria_produto_layout.add_widget(Label(text = "Nome :"))
                         categoria_nome_cadastro = TextInput(multiline=False, write_tab=False)
                         cadastrar_categoria_produto_layout.add_widget(categoria_nome_cadastro)
+                        cadastrar_categoria_produto_layout.add_widget(Label(text = "Estoque maximo :"))
+                        cadastrar_categoria_produto_layout.add_widget(Label(text = "Estoque minimo :"))
+                        cadastrar_categoria_produto_layout.add_widget(Label(text = "Estoque emergencial :"))
+                        
                         categoria_nome_cadastro_btt = Button(text = "Enviar")
                         
                         cadastrar_categoria_produto_layout.add_widget(categoria_nome_cadastro_btt)
